@@ -23,6 +23,5 @@
     "category": "real_event",
     "description": "幕張メッセで開催される大型リアルイベントです。詳細は公式サイトをご確認ください。",
     "url": "https://bluearchive.jp/fes/"
-    // urlTextがないので、デフォルトの「公式サイトへ」が表示される
   }
 ]
