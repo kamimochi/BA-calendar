@@ -23,7 +23,7 @@ import {
 // JSONインポート
 import eventsData from "./data/events.json";
 
-// 型定義
+// ★修正点1: 型定義に urlText? を追加
 type EventData = {
   id: number;
   title: string;
@@ -32,6 +32,7 @@ type EventData = {
   category: 'game' | 'goods' | 'real_event';
   description?: string;
   url?: string;
+  urlText?: string; // リンクの文言
 };
 
 interface MyEvent {
@@ -42,6 +43,7 @@ interface MyEvent {
   category: 'game' | 'goods' | 'real_event';
   description?: string;
   url?: string;
+  urlText?: string; // こちらにも追加
 }
 
 // JSONの文字列の日付をDateオブジェクトに変換
@@ -192,7 +194,8 @@ function App() {
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      公式サイトへ
+                      {/* ★修正点2: urlTextがあればそれを使い、なければ'公式サイトへ'を表示 */}
+                      {selectedEvent.urlText || '公式サイトへ'}
                     </Button>
                   </Box>
                 )}
