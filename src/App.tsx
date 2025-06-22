@@ -21,7 +21,15 @@ import {
 } from '@mui/material';
 
 // JSONインポート
-import eventsData from "./data/events.json" with { type: 'json' };
+// ★修正点1: eventsDataの型を少し緩く定義し、endがオプショナルであることを示す
+import eventsData from "./data/events.json" as Array<{
+  id: number;
+  title: string;
+  start: string;
+  end?: string; // endは存在しなくても良い
+  category: 'game' | 'goods' | 'real_event';
+  description?: string;
+}>;
 
 // 型定義
 interface MyEvent {
@@ -34,10 +42,12 @@ interface MyEvent {
 }
 
 // JSONの文字列の日付をDateオブジェクトに変換
+// ★修正点2: endがない場合はstartと同じ日時を使うようにロジックを変更
 const myEvents: MyEvent[] = eventsData.map((event) => ({
   ...event,
   start: new Date(event.start),
-  end: new Date(event.end),
+  // event.end が存在すればそれを使う。なければ(falsyな値なら)event.startを使う
+  end: new Date(event.end || event.start), 
   category: event.category as 'game' | 'goods' | 'real_event',
 }));
 
@@ -104,8 +114,6 @@ function App() {
   };
 
   return (
-    // ★修正点: maxWidth="lg" に戻して中央寄せを復活させます。
-    // disableGuttersとsxのpx指定を削除し、Containerの標準パディングに任せます。
     <Container maxWidth="lg" sx={{ py: 3 }}>
       <Typography variant="h4" component="h1" gutterBottom align="center" sx={{ fontSize: { xs: '1.8rem', sm: '2.125rem' } }}>
         ブルアカ カレンダー
@@ -166,7 +174,9 @@ function App() {
               <CardHeader title={selectedEvent.title} id="modal-title" />
               <CardContent>
                 <Typography id="modal-description" component="div">
-                  <strong>期間:</strong> {format(selectedEvent.start, 'yyyy/MM/dd HH:mm')} - {format(selectedEvent.end, 'yyyy/MM/dd HH:mm')}
+                  <strong>期間:</strong> {format(selectedEvent.start, 'yyyy/MM/dd HH:mm')}
+                  {/* ★修正点3: startとendの日付が違う場合のみ、終了日を表示する */}
+                  {!isSameDay(selectedEvent.start, selectedEvent.end) && ` - ${format(selectedEvent.end, 'yyyy/MM/dd HH:mm')}`}
                 </Typography>
                 {selectedEvent.description && (
                   <Typography sx={{ mt: 2 }}>
