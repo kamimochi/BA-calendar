@@ -23,7 +23,7 @@ import {
 // JSONインポート
 import eventsData from "./data/events.json";
 
-// ★修正点1: 型定義の category を 'real_event' から 'event' に変更
+// 型定義
 type EventData = {
   id: number;
   title: string;
@@ -51,7 +51,6 @@ const myEvents: MyEvent[] = (eventsData as EventData[]).map((event) => ({
   ...event,
   start: new Date(event.start),
   end: new Date(event.end || event.start), 
-  // ★修正点2: 型アサーションも 'real_event' から 'event' に変更
   category: event.category as 'game' | 'goods' | 'event',
 }));
 
@@ -81,7 +80,6 @@ const modalStyle = {
 };
 
 function App() {
-  // ★修正点3: stateの型も 'real_event' から 'event' に変更
   const [calendarType, setCalendarType] = useState<'all' | 'game' | 'goods' | 'event'>('all');
   const [selectedEvent, setSelectedEvent] = useState<MyEvent | null>(null);
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -133,7 +131,6 @@ function App() {
           <Button onClick={() => setCalendarType('all')} disabled={calendarType === 'all'}>すべて</Button>
           <Button onClick={() => setCalendarType('game')} disabled={calendarType === 'game'}>ゲーム内イベント</Button>
           <Button onClick={() => setCalendarType('goods')} disabled={calendarType === 'goods'}>グッズ情報</Button>
-          {/* ★修正点4: ボタンの表示とロジックを 'real_event' から 'event' に変更 */}
           <Button onClick={() => setCalendarType('event')} disabled={calendarType === 'event'}>イベント等</Button>
         </ButtonGroup>
       </Box>
@@ -189,11 +186,12 @@ function App() {
                   </Typography>
                 )}
                 
-                {selectedEvent.urlText && (
+                {/* ★修正点: url と urlText の両方が存在する場合にのみボタンを表示する */}
+                {selectedEvent.url && selectedEvent.urlText && (
                   <Box sx={{ mt: 2, textAlign: 'right' }}>
                     <Button
                       variant="contained"
-                      href={selectedEvent.url}
+                      href={selectedEvent.url} // このブロック内では url は必ず string 型になる
                       target="_blank"
                       rel="noopener noreferrer"
                     >
