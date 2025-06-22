@@ -1,0 +1,56 @@
+# GitHub Pages へのデプロイを許可するワークフロー
+name: Deploy to GitHub Pages
+
+on:
+  # `main` ブランチへの push 時に自動で実行されます
+  push:
+    branches: [main]
+  # Actions タブから手動で実行もできるようにします
+  workflow_dispatch:
+
+# GITHUB_TOKEN のパーミッションを設定し、デプロイを許可します
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  # ビルドとデプロイを行う単一のジョブ
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      # 1. リポジトリのコードをチェックアウト
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # 2. Node.js環境をセットアップ
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      # 3. 依存パッケージをインストール
+      - name: Install dependencies
+        run: npm install
+
+      # 4. アプリをビルド（公開用ファイルを生成）
+      - name: Build
+        run: npm run build
+
+      # 5. GitHub Pages用にアーティファクトをアップロード
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './dist' # Viteのビルド出力フォルダ
+
+      # 6. GitHub Pagesへデプロイ
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
