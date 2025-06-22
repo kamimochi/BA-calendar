@@ -12,7 +12,8 @@
     "start": "2025-06-26T12:00:00",
     "category": "goods",
     "description": "新規描き下ろしイラストを使用したグッズの発売！",
-    "url": "https://x.com/yostarjp_info/status/1936620165828854093"
+    "url": "https://x.com/yostarjp_info/status/1936620165828854093",
+    "urlText": "公式Xへ" 
   },
   {
     "id": 3,
@@ -20,6 +21,8 @@
     "start": "2024-01-20T09:00:00",
     "end": "2024-01-21T18:00:00",
     "category": "real_event",
-    "description": "幕張メッセで開催される大型リアルイベントです。詳細は公式サイトをご確認ください。"
+    "description": "幕張メッセで開催される大型リアルイベントです。詳細は公式サイトをご確認ください。",
+    "url": "https://bluearchive.jp/fes/"
+    // urlTextがないので、デフォルトの「公式サイトへ」が表示される
   }
 ]
