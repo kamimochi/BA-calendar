@@ -13,61 +13,25 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
-}
-
+/* ★修正点: bodyのスタイルをシンプルにし、flex関連の指定を削除 */
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-}
-
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
+/* 
+  以下のスタイルはMUIコンポーネントで実現しているため、
+  グローバルなCSSからは削除またはコメントアウトしても問題ありません。
+  今回はシンプルにするため削除しました。
+*/
 
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;
     background-color: #ffffff;
   }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
 }
 
-/* --- ここからが「今日」のスタイルを指定する重要な部分です --- */
+/* --- ここからは、これまで通りカレンダーのカスタムスタイルです --- */
 
 /* 「今日」のセルのデフォルト背景色をなくす */
 .rbc-month-view .my-today {
@@ -78,12 +42,10 @@ button:focus-visible {
 .my-today .rbc-button-link {
   width: 30px;
   height: 30px;
-  border-radius: 50%; /* 正円にする */
-  background-color: #1281e8; /* 背景色を青に */
-  color: white !important;   /* 文字色を白に */
+  border-radius: 50%;
+  background-color: #1281e8;
+  color: white !important;
   font-weight: bold;
-
-  /* 円の真ん中に数字を配置 */
   display: inline-flex;
   justify-content: center;
   align-items: center;
@@ -91,7 +53,7 @@ button:focus-visible {
 
 /* 「今日」の日付にマウスを乗せたときのスタイル */
 .my-today .rbc-button-link:hover {
-  background-color: #0d6ac4; /* 少し濃い青 */
+  background-color: #0d6ac4;
   color: white !important;
 }
 
@@ -106,20 +68,6 @@ button:focus-visible {
   justify-content: center;
   align-items: center;
 }
-/* --- ここから追記 --- */
-
-/* イベントがある日の背景色 */
-.rbc-day-bg.has-event:not(.rbc-off-range-bg) {
-  background-color: #eaf6ff; /* 明るい青色 */
-}
-
-/* ダークモードに対応したい場合は、以下も追加すると良いでしょう */
-@media (prefers-color-scheme: dark) {
-  .rbc-day-bg.has-event:not(.rbc-off-range-bg) {
-    background-color: rgba(18, 129, 232, 0.15); 
-  }
-}
-/* --- ここから追記 --- */
 
 /* イベントがある日の背景色 */
 .rbc-day-bg.has-event:not(.rbc-off-range-bg) {
@@ -133,14 +81,12 @@ button:focus-visible {
   }
 }
 
-/* --- スマホ表示用のスタイル調整 --- */
+/* スマホ表示用のスタイル調整 */
 @media (max-width: 600px) {
-  /* カレンダーの日付のフォントサイズを調整 */
   .rbc-month-view .rbc-day-bg .rbc-button-link {
     font-size: 0.8rem;
   }
   
-  /* 「今日」の丸と選択日の丸を少し小さくする */
   .my-today .rbc-button-link,
   .rbc-button-link.rbc-active {
     width: 26px;
