@@ -23,13 +23,13 @@ import {
 // JSONインポート
 import eventsData from "./data/events.json";
 
-// 型定義
+// ★修正点1: 型定義の category を 'real_event' から 'event' に変更
 type EventData = {
   id: number;
   title: string;
   start: string;
   end?: string;
-  category: 'game' | 'goods' | 'real_event';
+  category: 'game' | 'goods' | 'event';
   description?: string;
   url?: string;
   urlText?: string;
@@ -40,7 +40,7 @@ interface MyEvent {
   title: string;
   start: Date;
   end: Date;
-  category: 'game' | 'goods' | 'real_event';
+  category: 'game' | 'goods' | 'event';
   description?: string;
   url?: string;
   urlText?: string;
@@ -51,7 +51,8 @@ const myEvents: MyEvent[] = (eventsData as EventData[]).map((event) => ({
   ...event,
   start: new Date(event.start),
   end: new Date(event.end || event.start), 
-  category: event.category as 'game' | 'goods' | 'real_event',
+  // ★修正点2: 型アサーションも 'real_event' から 'event' に変更
+  category: event.category as 'game' | 'goods' | 'event',
 }));
 
 // date-fnsのローカライザー設定
@@ -80,7 +81,8 @@ const modalStyle = {
 };
 
 function App() {
-  const [calendarType, setCalendarType] = useState<'all' | 'game' | 'goods' | 'real_event'>('all');
+  // ★修正点3: stateの型も 'real_event' から 'event' に変更
+  const [calendarType, setCalendarType] = useState<'all' | 'game' | 'goods' | 'event'>('all');
   const [selectedEvent, setSelectedEvent] = useState<MyEvent | null>(null);
   const [currentDate, setCurrentDate] = useState(new Date());
 
@@ -131,7 +133,8 @@ function App() {
           <Button onClick={() => setCalendarType('all')} disabled={calendarType === 'all'}>すべて</Button>
           <Button onClick={() => setCalendarType('game')} disabled={calendarType === 'game'}>ゲーム内イベント</Button>
           <Button onClick={() => setCalendarType('goods')} disabled={calendarType === 'goods'}>グッズ情報</Button>
-          <Button onClick={() => setCalendarType('real_event')} disabled={calendarType === 'real_event'}>リアルイベント</Button>
+          {/* ★修正点4: ボタンの表示とロジックを 'real_event' から 'event' に変更 */}
+          <Button onClick={() => setCalendarType('event')} disabled={calendarType === 'event'}>イベント等</Button>
         </ButtonGroup>
       </Box>
 
@@ -186,12 +189,11 @@ function App() {
                   </Typography>
                 )}
                 
-                {/* ★修正点: urlTextが存在する場合にのみ、リンクボタンを表示する */}
                 {selectedEvent.urlText && (
                   <Box sx={{ mt: 2, textAlign: 'right' }}>
                     <Button
                       variant="contained"
-                      href={selectedEvent.url} // hrefにはurlキーの値を使う
+                      href={selectedEvent.url}
                       target="_blank"
                       rel="noopener noreferrer"
                     >
