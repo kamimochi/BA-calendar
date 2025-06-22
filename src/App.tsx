@@ -23,7 +23,7 @@ import {
 // JSONインポート
 import eventsData from "./data/events.json";
 
-// ★修正点1: 型定義に urlText? を追加
+// 型定義
 type EventData = {
   id: number;
   title: string;
@@ -32,7 +32,7 @@ type EventData = {
   category: 'game' | 'goods' | 'real_event';
   description?: string;
   url?: string;
-  urlText?: string; // リンクの文言
+  urlText?: string;
 };
 
 interface MyEvent {
@@ -43,7 +43,7 @@ interface MyEvent {
   category: 'game' | 'goods' | 'real_event';
   description?: string;
   url?: string;
-  urlText?: string; // こちらにも追加
+  urlText?: string;
 }
 
 // JSONの文字列の日付をDateオブジェクトに変換
@@ -186,16 +186,16 @@ function App() {
                   </Typography>
                 )}
                 
-                {selectedEvent.url && (
+                {/* ★修正点: urlTextが存在する場合にのみ、リンクボタンを表示する */}
+                {selectedEvent.urlText && (
                   <Box sx={{ mt: 2, textAlign: 'right' }}>
                     <Button
                       variant="contained"
-                      href={selectedEvent.url}
+                      href={selectedEvent.url} // hrefにはurlキーの値を使う
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      {/* ★修正点2: urlTextがあればそれを使い、なければ'公式サイトへ'を表示 */}
-                      {selectedEvent.urlText || '公式サイトへ'}
+                      {selectedEvent.urlText}
                     </Button>
                   </Box>
                 )}
