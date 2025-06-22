@@ -186,12 +186,12 @@ function App() {
                   </Typography>
                 )}
                 
-                {/* ★修正点: url と urlText の両方が存在する場合にのみボタンを表示する */}
+                {/* ★修正点: この条件分岐により、このブロック内では `url` は必ず string 型になる */}
                 {selectedEvent.url && selectedEvent.urlText && (
                   <Box sx={{ mt: 2, textAlign: 'right' }}>
                     <Button
                       variant="contained"
-                      href={selectedEvent.url} // このブロック内では url は必ず string 型になる
+                      href={selectedEvent.url} 
                       target="_blank"
                       rel="noopener noreferrer"
                     >
