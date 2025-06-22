@@ -13,7 +13,7 @@
     "category": "goods",
     "description": "新規描き下ろしイラストを使用したグッズの発売！",
     "url": "https://x.com/yostarjp_info/status/1936620165828854093",
-    "urlText": "公式Xへ" 
+    "urlText": "公式X" 
   },
   {
     "id": 3,
@@ -23,15 +23,24 @@
     "category": "event",
     "description": "ブルーアーカイブ4.5周年を記念し、同時に公開生放送も行われます！\n詳しくは公式サイトをチェック！",
     "url": "https://4th-half-anniversary.bluearchive.jp",
-    "urlText": "公式サイトへ" 
-  }
+    "urlText": "公式サイト" 
+  },
   {
     "id": 4,
     "title": "オフィシャルアートワークス３",
     "start": "2025-06-27T00:00:00",
     "category": "goods",
-    "description": "予約等は各種オンラインサイトにて可能です。",
+    "description": "予約は各種オンラインサイトにて可能です。",
     "url": "https://www.google.com/search?q=オフィシャルアートワークス3",
-    "urlText": "Google検索へ" 
+    "urlText": "Google検索" 
   },
+  {
+    "id": 5,
+    "title": "サオリ フィギュア",
+    "start": "2025-06-27T00:00:00",
+    "category": "goods",
+    "description": "予約は各種オンラインサイトにて可能です。\n恐らくWonderful Works公式サイトに掲載されるものと思われます。",
+    "url": "http://wonderfulworks.co.jp,
+    "urlText": "Wonderful Works公式サイト" 
+  }
 ]
