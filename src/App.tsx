@@ -18,14 +18,12 @@ import {
   Box,
   useTheme,
   useMediaQuery,
-  // ★修正点1: Link コンポーネントをインポート
-  Link,
 } from '@mui/material';
 
 // JSONインポート
 import eventsData from "./data/events.json";
 
-// ★修正点2: 型定義に url? を追加
+// 型定義
 type EventData = {
   id: number;
   title: string;
@@ -33,7 +31,7 @@ type EventData = {
   end?: string;
   category: 'game' | 'goods' | 'real_event';
   description?: string;
-  url?: string; // urlは存在しなくても良い
+  url?: string;
 };
 
 interface MyEvent {
@@ -43,7 +41,7 @@ interface MyEvent {
   end: Date;
   category: 'game' | 'goods' | 'real_event';
   description?: string;
-  url?: string; // こちらの型にも追加
+  url?: string;
 }
 
 // JSONの文字列の日付をDateオブジェクトに変換
@@ -186,14 +184,13 @@ function App() {
                   </Typography>
                 )}
                 
-                {/* ★修正点3: URLが存在する場合にのみリンクを表示する */}
                 {selectedEvent.url && (
                   <Box sx={{ mt: 2, textAlign: 'right' }}>
                     <Button
                       variant="contained"
                       href={selectedEvent.url}
-                      target="_blank" // 新しいタブで開く
-                      rel="noopener noreferrer" // セキュリティ対策
+                      target="_blank"
+                      rel="noopener noreferrer"
                     >
                       公式サイトへ
                     </Button>
