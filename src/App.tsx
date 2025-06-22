@@ -21,17 +21,19 @@ import {
 } from '@mui/material';
 
 // JSONインポート
-// ★修正点1: eventsDataの型を少し緩く定義し、endがオプショナルであることを示す
-import eventsData from "./data/events.json" as Array<{
+import eventsData from "./data/events.json";
+
+// ★修正点1: JSONデータの型をここで定義する
+type EventData = {
   id: number;
   title: string;
   start: string;
-  end?: string; // endは存在しなくても良い
+  end?: string;
   category: 'game' | 'goods' | 'real_event';
   description?: string;
-}>;
+};
 
-// 型定義
+// 型定義 (カレンダーが内部で使うイベントの型)
 interface MyEvent {
   id: number;
   title: string;
@@ -42,11 +44,10 @@ interface MyEvent {
 }
 
 // JSONの文字列の日付をDateオブジェクトに変換
-// ★修正点2: endがない場合はstartと同じ日時を使うようにロジックを変更
-const myEvents: MyEvent[] = eventsData.map((event) => ({
+// ★修正点2: eventsDataに先ほど定義した型を適用する
+const myEvents: MyEvent[] = (eventsData as EventData[]).map((event) => ({
   ...event,
   start: new Date(event.start),
-  // event.end が存在すればそれを使う。なければ(falsyな値なら)event.startを使う
   end: new Date(event.end || event.start), 
   category: event.category as 'game' | 'goods' | 'real_event',
 }));
@@ -82,7 +83,7 @@ function App() {
   const [currentDate, setCurrentDate] = useState(new Date());
 
   const theme = useTheme();
-  const isPc = useMediaQuery(theme.breakpoints.up('sm')); // sm(600px)以上ならtrue
+  const isPc = useMediaQuery(theme.breakpoints.up('sm'));
 
   const filteredEvents = useMemo(() => {
     if (calendarType === 'all') {
@@ -175,7 +176,6 @@ function App() {
               <CardContent>
                 <Typography id="modal-description" component="div">
                   <strong>期間:</strong> {format(selectedEvent.start, 'yyyy/MM/dd HH:mm')}
-                  {/* ★修正点3: startとendの日付が違う場合のみ、終了日を表示する */}
                   {!isSameDay(selectedEvent.start, selectedEvent.end) && ` - ${format(selectedEvent.end, 'yyyy/MM/dd HH:mm')}`}
                 </Typography>
                 {selectedEvent.description && (
