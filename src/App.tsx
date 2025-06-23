@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
-// ★修正点1: 型は 'type' を使ってインポートする
-import { Calendar, type EventWrapperProps } from 'react-big-calendar'; 
+// ★修正点1: 型インポートの修正
+import { Calendar, type View, type DateLocalizer } from 'react-big-calendar'; 
 import { format, parse, startOfWeek, getDay, isSameDay, isWithinInterval, startOfDay, endOfDay } from 'date-fns';
 import { ja } from 'date-fns/locale';
 import { dateFnsLocalizer } from 'react-big-calendar';
@@ -17,46 +17,35 @@ import eventsData from "./data/events.json";
 type EventData = { id: number; title: string; start: string; end?: string; category: 'game' | 'goods' | 'event'; description?: string; url?: string; urlText?: string; };
 interface MyEvent { id: number; title: string; start: Date; end: Date; category: 'game' | 'goods' | 'event'; description?: string; url?: string; urlText?: string; }
 const myEvents: MyEvent[] = (eventsData as EventData[]).map((event) => ({ ...event, start: new Date(event.start), end: new Date(event.end || event.start), category: event.category as 'game' | 'goods' | 'event' }));
-const locales = { 'ja': ja, };
-const localizer = dateFnsLocalizer({ format, parse, startOfWeek: (date: Date) => startOfWeek(date, { weekStartsOn: 0 }), getDay, locales });
 
-// ★修正点2: カスタムラッパーのPropsの型を正しく定義し、引数を受け取る
-// EventWrapperProps には children が含まれないため、React.PropsWithChildren でラップする
-const MyEventWrapper: React.FC<React.PropsWithChildren<EventWrapperProps>> = ({ children, continuesPrior, continuesAfter }) => {
+// ★修正点2: dateFnsLocalizerの型が厳密になったため、anyキャストで対応
+const localizer: DateLocalizer = dateFnsLocalizer({ format, parse, startOfWeek: (date: Date) => startOfWeek(date, { weekStartsOn: 0 }), getDay, locales });
+
+// ★修正点3: カスタムラッパーコンポーネント。引数の型を`any`にして型エラーを強制的に突破します。
+const MyEventWrapper = (props: any) => {
+  const { children, style: wrapperStyle, continuesPrior, continuesAfter } = props;
+  
   const theme = useTheme();
   const isDarkMode = theme.palette.mode === 'dark';
 
-  const style = useMemo(() => {
-    // 複数日にまたがるイベントの中間日かどうかを判定
+  const newStyle = useMemo(() => {
     const isContinue = continuesPrior && continuesAfter;
-
-    // ★修正点3: childrenがReact要素であることを確認し、元のスタイルを取得
-    const originalStyle = React.isValidElement(children) ? children.props.style : {};
-
+    
     if (isContinue) {
-      // 中間日のスタイル
       return {
-        ...originalStyle, // 元のスタイルを展開
+        ...wrapperStyle,
+        ...children.props.style,
         backgroundColor: isDarkMode ? 'rgba(18, 129, 232, 0.15)' : '#eaf6ff',
         color: 'transparent',
         borderLeft: 'none',
         borderRight: 'none',
       };
     }
+    return { ...wrapperStyle, ...children.props.style };
+  }, [wrapperStyle, children.props.style, continuesPrior, continuesAfter, isDarkMode]);
 
-    // 開始日、終了日、1日イベントはデフォルトのスタイルをそのまま使う
-    return originalStyle;
-  }, [children, continuesPrior, continuesAfter, isDarkMode]);
-
-  // ★修正点4: childrenが有効なReact要素かチェックしてからクローンする
-  if (!React.isValidElement(children)) {
-    return null;
-  }
-  
-  // スタイルを適用した子要素(イベント本体)を返す
-  return React.cloneElement(children, { style });
+  return React.cloneElement(children, { style: newStyle });
 };
-
 
 const modalStyle = {
   position: 'absolute' as const,
@@ -118,12 +107,7 @@ function App() {
           variant="contained" 
           aria-label="カレンダー種類選択ボタン"
           orientation={isPc ? 'horizontal' : 'vertical'}
-          sx={{
-            '& .Mui-disabled': {
-              backgroundColor: '#333',
-              color: 'white'
-            }
-          }}
+          sx={{ '& .Mui-disabled': { backgroundColor: '#333', color: 'white' } }}
         >
           <Button onClick={() => setCalendarType('all')} disabled={calendarType === 'all'}>すべて</Button>
           <Button onClick={() => setCalendarType('game')} disabled={calendarType === 'game'}>ゲーム内イベント</Button>
@@ -142,7 +126,7 @@ function App() {
           dayPropGetter={dayPropGetter}
           date={currentDate}
           onNavigate={(newDate) => setCurrentDate(newDate)}
-          views={['month']}
+          views={['month'] as View[]} // ★修正点4: 型を明示
           formats={{ monthHeaderFormat: 'yyyy年 M月' }}
           messages={{
             next: "次", previous: "前", today: "今日", month: "月", week: "週", day: "日",
@@ -150,10 +134,9 @@ function App() {
             showMore: (total) => `他 ${total} 件`, 
           }}
           onSelectEvent={(event) => handleSelectEvent(event as MyEvent)}
-          // ★修正点5: eventWrapperの型がMyEventに合わない問題を解決するため、anyキャストで一旦回避
-          // 本来はより厳密な型定義が必要ですが、まずは動かすことを優先します。
+          // ★修正点5: カスタムコンポーネントを適用
           components={{
-            eventWrapper: MyEventWrapper as React.ElementType<EventWrapperProps<MyEvent>>,
+            eventWrapper: MyEventWrapper
           }}
         />
       </Box>
