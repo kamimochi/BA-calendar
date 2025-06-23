@@ -45,7 +45,21 @@ function App() {
   const [calendarType, setCalendarType] = useState<'all' | 'game' | 'goods' | 'event'>('all');
   const [selectedEvent, setSelectedEvent] = useState<MyEvent | null>(null);
   const [currentDate, setCurrentDate] = useState(new Date());
+  // ポップオーバーの表示位置を決めるためのアンカー要素
+  const [popoverAnchorEl, setPopoverAnchorEl] = useState<HTMLElement | null>(null);
+  // ポップオーバーに表示するイベントのリスト
+  const [popoverEvents, setPopoverEvents] = useState<MyEvent[]>([]);
+  const handleShowMore = (events: MyEvent[], date: Date, e: React.MouseEvent) => {
+  setPopoverEvents(events);
+  setPopoverAnchorEl(e.currentTarget as HTMLElement);
+};
 
+// ポップオーバーを閉じる関数
+const handleClosePopover = () => {
+  setPopoverAnchorEl(null);
+  // 少し遅らせてクリアすると、閉じるアニメーション中に内容が消えるのを防げる
+  setTimeout(() => setPopoverEvents([]), 300); 
+};
   const theme = useTheme();
   const isPc = useMediaQuery(theme.breakpoints.up('sm'));
 
@@ -133,7 +147,33 @@ function App() {
           onSelectEvent={(event) => handleSelectEvent(event as MyEvent)}
       />
       </Box>
-      
+      <Popover
+  open={Boolean(popoverAnchorEl)}
+  anchorEl={popoverAnchorEl}
+  onClose={handleClosePopover}
+  anchorOrigin={{
+    vertical: 'bottom',
+    horizontal: 'center',
+  }}
+  transformOrigin={{
+    vertical: 'top',
+    horizontal: 'center',
+  }}
+>
+  <List dense>
+    {popoverEvents.map((event) => (
+      <ListItem key={event.id} disablePadding>
+        {/* ListItemButtonをクリックしたら詳細モーダルが開くようにする */}
+        <ListItemButton onClick={() => {
+          handleClosePopover();
+          handleSelectEvent(event);
+        }}>
+          <ListItemText primary={event.title} />
+        </ListItemButton>
+      </ListItem>
+    ))}
+  </List>
+</Popover>
       <Modal open={!!selectedEvent} onClose={handleCloseModal} aria-labelledby="modal-title" aria-describedby="modal-description">
         <Box sx={modalStyle}>
           {selectedEvent && (
