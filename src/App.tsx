@@ -1,5 +1,4 @@
-// ★修正点: 未使用になった 'React,' をインポート文から削除
-import { useState, useMemo } from 'react'; 
+import { useState, useMemo } from 'react';
 import { Calendar, type View, type DateLocalizer } from 'react-big-calendar'; 
 import { format, parse, startOfWeek, getDay, isSameDay, isWithinInterval, startOfDay, endOfDay } from 'date-fns';
 import { ja } from 'date-fns/locale';
@@ -19,36 +18,6 @@ interface MyEvent { id: number; title: string; start: Date; end: Date; category:
 const myEvents: MyEvent[] = (eventsData as EventData[]).map((event) => ({ ...event, start: new Date(event.start), end: new Date(event.end || event.start), category: event.category as 'game' | 'goods' | 'event' }));
 const locales = { 'ja': ja, };
 const localizer: DateLocalizer = dateFnsLocalizer({ format, parse, startOfWeek: (date: Date) => startOfWeek(date, { weekStartsOn: 0 }), getDay, locales });
-
-// カスタムイベントラッパーコンポーネント
-const MyEventWrapper = (props: any) => {
-  const { children, style, continuesPrior, continuesAfter } = props;
-  
-  const theme = useTheme();
-  const isDarkMode = theme.palette.mode === 'dark';
-
-  const newStyle = useMemo(() => {
-    const isContinue = continuesPrior && continuesAfter;
-    
-    if (isContinue) {
-      return {
-        ...style,
-        backgroundColor: isDarkMode ? 'rgba(18, 129, 232, 0.15)' : '#eaf6ff',
-        border: 'none',
-      };
-    }
-    return style;
-  }, [style, continuesPrior, continuesAfter, isDarkMode]);
-  
-  // 中間日の場合は文字を見えなくし、それ以外は通常表示
-  const eventContent = (continuesPrior && continuesAfter) ? <div style={{ color: 'transparent' }}>{children}</div> : children;
-
-  return (
-    <div style={newStyle}>
-      {eventContent}
-    </div>
-  );
-};
 
 
 const modalStyle = {
@@ -138,9 +107,7 @@ function App() {
             showMore: (total) => `他 ${total} 件`, 
           }}
           onSelectEvent={(event) => handleSelectEvent(event as MyEvent)}
-          components={{
-            eventWrapper: MyEventWrapper
-          }}
+          // componentsプロパティは削除しました
         />
       </Box>
       
