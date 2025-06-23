@@ -16,49 +16,45 @@ import eventsData from "./data/events.json";
 type EventData = { id: number; title: string; start: string; end?: string; category: 'game' | 'goods' | 'event'; description?: string; url?: string; urlText?: string; };
 interface MyEvent { id: number; title: string; start: Date; end: Date; category: 'game' | 'goods' | 'event'; description?: string; url?: string; urlText?: string; }
 const myEvents: MyEvent[] = (eventsData as EventData[]).map((event) => ({ ...event, start: new Date(event.start), end: new Date(event.end || event.start), category: event.category as 'game' | 'goods' | 'event' }));
-
-// ★★★★★ 復活させた最重要の行 ★★★★★
-// カレンダーの日本語化設定
-const locales = {
-  'ja': ja,
-};
-
-// dateFnsLocalizerにlocalesを渡す
+const locales = { 'ja': ja, };
 const localizer: DateLocalizer = dateFnsLocalizer({ format, parse, startOfWeek: (date: Date) => startOfWeek(date, { weekStartsOn: 0 }), getDay, locales });
 
-// カスタムイベントラッパーコンポーネント
+// ★★★ ここからが新しい実装です ★★★
+// カスタムイベントラッパーコンポーネント (改訂・最終版)
 const MyEventWrapper = (props: any) => {
-  const { children, style: wrapperStyle, continuesPrior, continuesAfter } = props;
+  const { children, style, continuesPrior, continuesAfter } = props;
   
   const theme = useTheme();
   const isDarkMode = theme.palette.mode === 'dark';
 
   const newStyle = useMemo(() => {
+    // 複数日にまたがるイベントの「中間日」か判定
     const isContinue = continuesPrior && continuesAfter;
     
-    // children.props.styleが存在しない場合も考慮
-    const originalStyle = children && children.props ? children.props.style : {};
-    
     if (isContinue) {
+      // 中間日のスタイル
       return {
-        ...wrapperStyle,
-        ...originalStyle,
+        ...style, // react-big-calendarが渡す位置や幅のスタイルは維持
         backgroundColor: isDarkMode ? 'rgba(18, 129, 232, 0.15)' : '#eaf6ff',
-        color: 'transparent',
-        borderLeft: 'none',
-        borderRight: 'none',
+        border: 'none', // 間の日の枠線は消す
       };
     }
-    return { ...wrapperStyle, ...originalStyle };
-  }, [wrapperStyle, children, continuesPrior, continuesAfter, isDarkMode]);
 
-  // childrenが有効なReact要素かチェックしてからクローンする
-  if (!React.isValidElement(children)) {
-    return null;
-  }
+    // 開始日、終了日、1日イベントは渡されたスタイルをそのまま使う
+    return style;
+  }, [style, continuesPrior, continuesAfter, isDarkMode]);
 
-  return React.cloneElement(children, { style: newStyle });
+  // 新しいスタイルを適用したdivで、イベント本体(children)をラップして返す
+  return (
+    <div style={newStyle}>
+      {/* 中間日の場合、文字を見えなくするために空のdivを被せるトリック */}
+      {continuesPrior && continuesAfter && <div style={{ color: 'transparent' }}>{children}</div>}
+      {/* それ以外の場合は、通常通り表示 */}
+      {!(continuesPrior && continuesAfter) && children}
+    </div>
+  );
 };
+
 
 const modalStyle = {
   position: 'absolute' as const,
