@@ -106,23 +106,22 @@ body {
   }
 }
 
+/* --- 長期間イベントのスタイル調整 (最終確定版) --- */
+
+/* 「前から」も「後へも」イベントが続く日、つまり「中間日」にだけ適用 */
+.rbc-event.rbc-event-continues-prior.rbc-event-continues-after {
+  background-color: #eaf6ff !important; /* 背景色を薄い青に */
+}
+
+/* 中間日のイベントのテキスト部分 */
+.rbc-event.rbc-event-continues-prior.rbc-event-continues-after .rbc-event-content {
+  color: transparent !important; /* テキストを透明にする */
+}
+
+
 /* --- ダークモード時の調整 --- */
 @media (prefers-color-scheme: dark) {
   /* 期間中の背景色をダークモード用に調整 */
-  .rbc-row-segment .rbc-event.rbc-event-continue {
+  .rbc-event.rbc-event-continues-prior.rbc-event-continues-after {
     background-color: rgba(18, 129, 232, 0.15) !important;
   }
-}
-
-/* --- 長期間イベントのスタイル調整 (CSS最終版) --- */
-
-/* 2日以上にまたがるイベントの「間の日」(continue)に適用 */
-.rbc-event.rbc-event-continue {
-  background-color: #eaf6ff !important; /* !importantで強制上書き */
-  border-color: #eaf6ff !important; /* 枠線の色も変える */
-}
-
-/* 間の日のイベントのテキスト部分 */
-.rbc-event.rbc-event-continue .rbc-event-content {
-  color: transparent !important; /* テキストを透明にする */
-}
