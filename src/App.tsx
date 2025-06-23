@@ -1,7 +1,5 @@
 import { useState, useMemo } from 'react';
-// ★修正点1: EventPropGetterの型をreact-big-calendarから直接使うのは複雑なため、一旦型をanyにします
 import { Calendar, type View, type DateLocalizer } from 'react-big-calendar'; 
-// ★修正点2: 未使用の 'startOfDay' と 'endOfDay' を削除
 import { format, parse, startOfWeek, getDay, isSameDay, isWithinInterval } from 'date-fns';
 import { ja } from 'date-fns/locale';
 import { dateFnsLocalizer } from 'react-big-calendar';
@@ -65,17 +63,20 @@ function App() {
     setSelectedEvent(null);
   };
 
+  // ★★★ このdayPropGetterは維持します ★★★
+  // 日付セル全体の色を制御します
   const dayPropGetter = (date: Date) => {
     const classNames = [];
     if (isSameDay(date, new Date())) {
       classNames.push('my-today');
     }
     
+    // この日に開始または終了する長期間イベントがあるかチェック
     const isStartOrEnd = filteredEvents.some(event => 
       !isSameDay(event.start, event.end) && (isSameDay(date, event.start) || isSameDay(date, event.end))
     );
     
-    // isStartOrEnd の判定を isWithinInterval の前に行う
+    // この日が長期間イベントの中間日にあたるかチェック
     const isContinue = filteredEvents.some(event =>
       !isSameDay(event.start, event.end) && 
       !isSameDay(date, event.start) && 
@@ -87,25 +88,6 @@ function App() {
       classNames.push('is-start-or-end-day');
     } else if (isContinue) {
       classNames.push('is-continue-day');
-    }
-    
-    return { className: classNames.join(' ') };
-  };
-
-  // ★修正点3: 未使用の引数 'isSelected' を削除
-  const eventPropGetter = (event: MyEvent, start: Date, end: Date) => {
-    const classNames = [];
-    
-    const isSingleDay = isSameDay(event.start, event.end);
-    if (isSingleDay) {
-      classNames.push('is-single-day-event');
-    } else {
-      const isStart = isSameDay(event.start, start);
-      const isEnd = isSameDay(event.end, end);
-      
-      if (isStart) classNames.push('is-multi-day-start');
-      else if (isEnd) classNames.push('is-multi-day-end');
-      else classNames.push('is-multi-day-continue');
     }
     
     return { className: classNames.join(' ') };
@@ -139,7 +121,7 @@ function App() {
           endAccessor="end"
           style={{ height: '100%' }}
           dayPropGetter={dayPropGetter}
-          eventPropGetter={eventPropGetter}
+          // ★★★ eventPropGetterは削除しました ★★★
           date={currentDate}
           onNavigate={(newDate) => setCurrentDate(newDate)}
           views={['month'] as View[]}
