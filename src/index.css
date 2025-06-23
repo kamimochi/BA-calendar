@@ -149,3 +149,40 @@ button:focus-visible {
     height: 26px;
   }
 }
+
+/* ★ 日付セル全体の背景色 ★ */
+/* 開始日・終了日のセルの背景 */
+.rbc-day-bg.is-start-or-end-day {
+  background-color: #eaf6ff;
+}
+/* 中間日のセルの背景 */
+.rbc-day-bg.is-continue-day {
+  background-color: #f7f7f7;
+}
+
+
+/* ★ イベントバーのスタイル ★ */
+/* 複数日にまたがるイベントの中間日のバー */
+.rbc-event.is-multi-day-continue {
+  background-color: transparent !important; /* バーの背景を完全に透明に */
+  box-shadow: none !important; /* 影もなくす */
+  border: none !important; /* 枠線もなくす */
+}
+/* 中間日のバーのテキスト部分 */
+.rbc-event.is-multi-day-continue .rbc-event-content {
+  color: transparent !important; /* テキストを透明にする */
+}
+
+
+/* --- ダークモード時の調整 --- */
+@media (prefers-color-scheme: dark) {
+  /* ... (他のダークモードスタイルは変更なし) ... */
+
+  /* ★ ダークモード時の日付セル背景色 ★ */
+  .rbc-day-bg.is-start-or-end-day {
+    background-color: rgba(18, 129, 232, 0.15);
+  }
+  .rbc-day-bg.is-continue-day {
+    background-color: #2a2a2a;
+  }
+}
