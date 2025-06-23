@@ -93,3 +93,22 @@ body {
     height: 26px;
   }
 }
+/* --- ここから追記 --- */
+
+/* ダークモード時のカレンダーツールバーの文字色を修正 */
+@media (prefers-color-scheme: dark) {
+  /* "2025年 6月" などの年月表示 */
+  .rbc-toolbar .rbc-toolbar-label {
+    color: rgba(255, 255, 255, 0.87); /* 標準的な白い文字色 */
+  }
+
+  /* "今日", "前", "次" などのボタン */
+  .rbc-toolbar button {
+    color: rgba(255, 255, 255, 0.87);
+  }
+
+  /* 無効化されたボタン（例：今月の時の"今日"ボタン）の文字色 */
+  .rbc-toolbar button:disabled {
+    color: rgba(255, 255, 255, 0.5);
+  }
+}
