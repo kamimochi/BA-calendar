@@ -6,8 +6,17 @@ import { dateFnsLocalizer } from 'react-big-calendar';
 
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import { 
-  Container, Button, ButtonGroup, Modal, Typography, Card, CardContent, CardHeader, Box,
-  useTheme, useMediaQuery,
+  Container, 
+  Button, 
+  ButtonGroup, 
+  Modal, 
+  Typography, 
+  Card, 
+  CardContent, 
+  CardHeader, 
+  Box,
+  useTheme,
+  useMediaQuery,
 } from '@mui/material';
 
 import eventsData from "./data/events.json";
@@ -18,6 +27,7 @@ interface MyEvent { id: number; title: string; start: Date; end: Date; category:
 const myEvents: MyEvent[] = (eventsData as EventData[]).map((event) => ({ ...event, start: new Date(event.start), end: new Date(event.end || event.start), category: event.category as 'game' | 'goods' | 'event' }));
 const locales = { 'ja': ja, };
 const localizer: DateLocalizer = dateFnsLocalizer({ format, parse, startOfWeek: (date: Date) => startOfWeek(date, { weekStartsOn: 0 }), getDay, locales });
+
 
 const modalStyle = {
   position: 'absolute' as const,
@@ -53,21 +63,16 @@ function App() {
     setSelectedEvent(null);
   };
 
-  // ★★★ ここからが今回の修正の核心です ★★★
-  
-  // 1. 日付セル全体のスタイルを制御する
   const dayPropGetter = (date: Date) => {
     const classNames = [];
     if (isSameDay(date, new Date())) {
       classNames.push('my-today');
     }
     
-    // この日に開始または終了する長期間イベントがあるかチェック
     const isStartOrEnd = filteredEvents.some(event => 
       !isSameDay(event.start, event.end) && (isSameDay(date, event.start) || isSameDay(date, event.end))
     );
     
-    // この日が長期間イベントの中間日にあたるかチェック
     const isContinue = filteredEvents.some(event =>
       !isSameDay(event.start, event.end) && !isStartOrEnd && isWithinInterval(date, { start: event.start, end: event.end })
     );
@@ -81,18 +86,15 @@ function App() {
     return { className: classNames.join(' ') };
   };
 
-  // 2. イベントバー自体のスタイルを制御する
   const eventPropGetter: EventPropGetter<MyEvent> = (event, start, end, isSelected) => {
     const classNames = [];
     
-    // 1日で完結するイベントかどうか
     const isSingleDay = isSameDay(event.start, event.end);
     if (isSingleDay) {
       classNames.push('is-single-day-event');
     } else {
-      // 複数日イベントの場合
-      const isStart = isSameDay(event.start, start); // このバーがイベントの開始日か
-      const isEnd = isSameDay(event.end, end); // このバーがイベントの終了日か
+      const isStart = isSameDay(event.start, start);
+      const isEnd = isSameDay(event.end, end);
       
       if (isStart) classNames.push('is-multi-day-start');
       else if (isEnd) classNames.push('is-multi-day-end');
@@ -102,16 +104,23 @@ function App() {
     return { className: classNames.join(' ') };
   };
 
-  // ★★★ ここまで ★★★
-
   return (
     <Container maxWidth="lg" sx={{ py: 3 }}>
       <Typography variant="h4" component="h1" gutterBottom align="center" sx={{ fontSize: { xs: '1.8rem', sm: '2.125rem' } }}>
         ブルアカ カレンダー
       </Typography>
+      
       <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
-        <ButtonGroup /* ... */ >
-           {/* ... Buttons ... */}
+        <ButtonGroup 
+          variant="contained" 
+          aria-label="カレンダー種類選択ボタン"
+          orientation={isPc ? 'horizontal' : 'vertical'}
+          sx={{ '& .Mui-disabled': { backgroundColor: '#333', color: 'white' } }}
+        >
+          <Button onClick={() => setCalendarType('all')} disabled={calendarType === 'all'}>すべて</Button>
+          <Button onClick={() => setCalendarType('game')} disabled={calendarType === 'game'}>ゲーム内イベント</Button>
+          <Button onClick={() => setCalendarType('goods')} disabled={calendarType === 'goods'}>グッズ情報</Button>
+          <Button onClick={() => setCalendarType('event')} disabled={calendarType === 'event'}>リアルイベント</Button>
         </ButtonGroup>
       </Box>
 
@@ -122,19 +131,37 @@ function App() {
           startAccessor="start"
           endAccessor="end"
           style={{ height: '100%' }}
-          dayPropGetter={dayPropGetter} // 強化したdayPropGetterを適用
-          eventPropGetter={eventPropGetter} // ★新設したeventPropGetterを適用
+          dayPropGetter={dayPropGetter}
+          eventPropGetter={eventPropGetter}
           date={currentDate}
           onNavigate={(newDate) => setCurrentDate(newDate)}
           views={['month'] as View[]}
           formats={{ monthHeaderFormat: 'yyyy年 M月' }}
-          messages={{ /* ... */ showMore: (total) => `他 ${total} 件` }}
+          messages={{
+            next: "次", previous: "前", today: "今日", month: "月", week: "週", day: "日",
+            agenda: "予定", date: "日付", time: "時間", event: "イベント",
+            showMore: (total) => `他 ${total} 件`, 
+          }}
           onSelectEvent={(event) => handleSelectEvent(event as MyEvent)}
         />
       </Box>
       
-      <Modal /* ... */ >
-        {/* ... */}
+      <Modal open={!!selectedEvent} onClose={handleCloseModal} aria-labelledby="modal-title" aria-describedby="modal-description">
+        <Box sx={modalStyle}>
+          {selectedEvent && (
+            <Card>
+              <CardHeader title={selectedEvent.title} id="modal-title" />
+              <CardContent>
+                <Typography id="modal-description" component="div">
+                  <strong>期間:</strong> {format(selectedEvent.start, 'yyyy/MM/dd HH:mm')}
+                  {!isSameDay(selectedEvent.start, selectedEvent.end) && ` - ${format(selectedEvent.end, 'yyyy/MM/dd HH:mm')}`}
+                </Typography>
+                {selectedEvent.description && ( <Typography sx={{ mt: 2 }}> <strong>詳細:</strong> {selectedEvent.description} </Typography> )}
+                {selectedEvent.url && selectedEvent.urlText && ( <Typography sx={{ mt: 2 }}> <strong>リンク:</strong>{' '} <a href={selectedEvent.url} target="_blank" rel="noopener noreferrer"> {selectedEvent.urlText} </a> </Typography> )}
+              </CardContent>
+            </Card>
+          )}
+        </Box>
       </Modal>
     </Container>
   );
