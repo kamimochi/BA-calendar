@@ -54,7 +54,7 @@ function App() {
   const [popoverAnchorEl, setPopoverAnchorEl] = useState<HTMLElement | null>(null);
   // ポップオーバーに表示するイベントのリスト
   const [popoverEvents, setPopoverEvents] = useState<MyEvent[]>([]);
-  const handleShowMore = (events: MyEvent[], date: Date, e: React.MouseEvent) => {
+const handleShowMore = (events: MyEvent[], _date: Date, e: React.MouseEvent) => {
   setPopoverEvents(events);
   setPopoverAnchorEl(e.currentTarget as HTMLElement);
 };
