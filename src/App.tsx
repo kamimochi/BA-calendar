@@ -1,4 +1,3 @@
-
 import { useState, useMemo } from 'react';
 import { Calendar } from 'react-big-calendar'; 
 import { format, parse, startOfWeek, getDay, isSameDay, isWithinInterval, startOfDay, endOfDay } from 'date-fns';
@@ -24,7 +23,7 @@ import {
 // JSONインポート
 import eventsData from "./data/events.json";
 
-// 型定義
+// JSONデータの型をここで定義する
 type EventData = {
   id: number;
   title: string;
@@ -36,9 +35,10 @@ type EventData = {
   urlText?: string;
 };
 
+// カレンダーが内部で使うイベントの型
 interface MyEvent {
   id: number;
-  title: string;
+  title:string;
   start: Date;
   end: Date;
   category: 'game' | 'goods' | 'event';
@@ -118,6 +118,7 @@ function App() {
   };
 
   return (
+    // このContainerを使った中央揃えスタイルを維持します
     <Container maxWidth="lg" sx={{ py: 3 }}>
       <Typography variant="h4" component="h1" gutterBottom align="center" sx={{ fontSize: { xs: '1.8rem', sm: '2.125rem' } }}>
         ブルアカ カレンダー
@@ -128,11 +129,19 @@ function App() {
           variant="contained" 
           aria-label="カレンダー種類選択ボタン"
           orientation={isPc ? 'horizontal' : 'vertical'}
+          // ★★★ ここが修正ポイントです ★★★
+          // 選択中(disabled)のボタンのスタイルを上書きします
+          sx={{
+            '& .Mui-disabled': {
+              backgroundColor: '#333', // 選択中のボタンの背景色（暗い色）
+              color: 'white' // ★文字色は白のまま維持します
+            }
+          }}
         >
           <Button onClick={() => setCalendarType('all')} disabled={calendarType === 'all'}>すべて</Button>
           <Button onClick={() => setCalendarType('game')} disabled={calendarType === 'game'}>ゲーム内イベント</Button>
           <Button onClick={() => setCalendarType('goods')} disabled={calendarType === 'goods'}>グッズ情報</Button>
-          <Button onClick={() => setCalendarType('event')} disabled={calendarType === 'event'}>イベント等</Button>
+          <Button onClick={() => setCalendarType('event')} disabled={calendarType === 'event'}>リアルイベント</Button>
         </ButtonGroup>
       </Box>
 
@@ -186,19 +195,13 @@ function App() {
                     <strong>詳細:</strong> {selectedEvent.description}
                   </Typography>
                 )}
-                
-                {/* ★修正点: この条件分岐により、このブロック内では `url` は必ず string 型になる */}
                 {selectedEvent.url && selectedEvent.urlText && (
-                  <Box sx={{ mt: 2, textAlign: 'right' }}>
-                    <Button
-                      variant="contained"
-                      href={selectedEvent.url} 
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
+                  <Typography sx={{ mt: 2 }}>
+                    <strong>リンク:</strong>{' '}
+                    <a href={selectedEvent.url} target="_blank" rel="noopener noreferrer">
                       {selectedEvent.urlText}
-                    </Button>
-                  </Box>
+                    </a>
+                  </Typography>
                 )}
               </CardContent>
             </Card>
