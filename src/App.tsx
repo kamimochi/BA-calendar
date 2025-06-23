@@ -29,18 +29,22 @@ type EventData = {
   title: string;
   start: string;
   end?: string;
-  category: 'game' | 'goods' | 'real_event';
+  category: 'game' | 'goods' | 'event'; // ★修正点1: 'real_event' -> 'event'
   description?: string;
+  url?: string;
+  urlText?: string;
 };
 
 // カレンダーが内部で使うイベントの型
 interface MyEvent {
   id: number;
-  title: string;
+  title:string;
   start: Date;
   end: Date;
-  category: 'game' | 'goods' | 'real_event';
+  category: 'game' | 'goods' | 'event'; // ★修正点2: 'real_event' -> 'event'
   description?: string;
+  url?: string;
+  urlText?: string;
 }
 
 // JSONの文字列の日付をDateオブジェクトに変換
@@ -48,7 +52,7 @@ const myEvents: MyEvent[] = (eventsData as EventData[]).map((event) => ({
   ...event,
   start: new Date(event.start),
   end: new Date(event.end || event.start), 
-  category: event.category as 'game' | 'goods' | 'real_event',
+  category: event.category as 'game' | 'goods' | 'event', // ★修正点3: 'real_event' -> 'event'
 }));
 
 // date-fnsのローカライザー設定
@@ -77,7 +81,7 @@ const modalStyle = {
 };
 
 function App() {
-  const [calendarType, setCalendarType] = useState<'all' | 'game' | 'goods' | 'real_event'>('all');
+  const [calendarType, setCalendarType] = useState<'all' | 'game' | 'goods' | 'event'>('all'); // ★修正点4: 'real_event' -> 'event'
   const [selectedEvent, setSelectedEvent] = useState<MyEvent | null>(null);
   const [currentDate, setCurrentDate] = useState(new Date());
 
@@ -124,18 +128,19 @@ function App() {
           variant="contained" 
           aria-label="カレンダー種類選択ボタン"
           orientation={isPc ? 'horizontal' : 'vertical'}
-          // ★修正点: disabled状態のボタンのスタイルを上書き
           sx={{
             '& .Mui-disabled': {
-              backgroundColor: '#333', // 選択中のボタンの背景色
-              color: 'rgba(255, 255, 255, 0.7)', // 選択中のボタンの文字色
+              backgroundColor: '#333',
+              color: 'rgba(255, 255, 255, 0.7)',
             }
           }}
         >
           <Button onClick={() => setCalendarType('all')} disabled={calendarType === 'all'}>すべて</Button>
           <Button onClick={() => setCalendarType('game')} disabled={calendarType === 'game'}>ゲーム内イベント</Button>
+
           <Button onClick={() => setCalendarType('goods')} disabled={calendarType === 'goods'}>グッズ情報</Button>
-          <Button onClick={() => setCalendarType('real_event')} disabled={calendarType === 'real_event'}>リアルイベント</Button>
+          {/* ★修正点5: 'real_event' -> 'event' */}
+          <Button onClick={() => setCalendarType('event')} disabled={calendarType === 'event'}>リアルイベント</Button>
         </ButtonGroup>
       </Box>
 
@@ -188,6 +193,14 @@ function App() {
                 {selectedEvent.description && (
                   <Typography sx={{ mt: 2 }}>
                     <strong>詳細:</strong> {selectedEvent.description}
+                  </Typography>
+                )}
+                {selectedEvent.url && selectedEvent.urlText && (
+                  <Typography sx={{ mt: 2 }}>
+                    <strong>リンク:</strong>{' '}
+                    <a href={selectedEvent.url} target="_blank" rel="noopener noreferrer">
+                      {selectedEvent.urlText}
+                    </a>
                   </Typography>
                 )}
               </CardContent>
