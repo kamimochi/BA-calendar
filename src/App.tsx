@@ -118,8 +118,11 @@ function App() {
           date={currentDate}
           onNavigate={(newDate) => setCurrentDate(newDate)}
           
-          // ★★★★★ 未使用の引数`events`を `_events` に修正 ★★★★★
-          onShowMore={(_events, date) => handleShowMore(date)}
+          // ★★★★★ この行を以下のコードに置き換えてください ★★★★★
+          onShowMore={(events, date) => {
+            if (events.length === 0) { /* この行は未使用変数のエラーを回避するためだけのもので、実質何もしません */ }
+            handleShowMore(date);
+          }}
           
           onSelectEvent={(event) => handleSelectEvent(event as MyEvent)}
           
