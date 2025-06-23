@@ -1,19 +1,19 @@
 import { useState, useMemo } from 'react';
-import { Calendar, type View, type DateLocalizer } from 'react-big-calendar'; 
+import { Calendar, type View, type DateLocalizer } from 'react-big-calendar';
 import { format, parse, startOfWeek, getDay, isSameDay, isWithinInterval } from 'date-fns';
 import { ja } from 'date-fns/locale';
 import { dateFnsLocalizer } from 'react-big-calendar';
 
 import 'react-big-calendar/lib/css/react-big-calendar.css';
-import { 
-  Container, 
-  Button, 
-  ButtonGroup, 
-  Modal, 
-  Typography, 
-  Card, 
-  CardContent, 
-  CardHeader, 
+import {
+  Container,
+  Button,
+  ButtonGroup,
+  Modal,
+  Typography,
+  Card,
+  CardContent,
+  CardHeader,
   Box,
   useTheme,
   useMediaQuery,
@@ -50,24 +50,15 @@ function App() {
   const [calendarType, setCalendarType] = useState<'all' | 'game' | 'goods' | 'event'>('all');
   const [selectedEvent, setSelectedEvent] = useState<MyEvent | null>(null);
   const [currentDate, setCurrentDate] = useState(new Date());
-  // ポップオーバーの表示位置を決めるためのアンカー要素
-  const [popoverAnchorEl, setPopoverAnchorEl] = useState<HTMLElement | null>(null);
-  // ポップオーバーに表示するイベントのリスト
-  const [popoverEvents, setPopoverEvents] = useState<MyEvent[]>([]);
-const handleShowMore = (events: MyEvent[], _date: Date, e: React.MouseEvent) => {
-  setPopoverEvents(events);
-  setPopoverAnchorEl(e.currentTarget as HTMLElement);
-};
 
-// ポップオーバーを閉じる関数
-const handleClosePopover = () => {
-  setPopoverAnchorEl(null);
-  // 少し遅らせてクリアすると、閉じるアニメーション中に内容が消えるのを防げる
-  setTimeout(() => setPopoverEvents([]), 300); 
-};
+  // --- ポップオーバー用のstate ---
+  const [popoverAnchorEl, setPopoverAnchorEl] = useState<HTMLElement | null>(null);
+  const [popoverEvents, setPopoverEvents] = useState<MyEvent[]>([]);
+
   const theme = useTheme();
   const isPc = useMediaQuery(theme.breakpoints.up('sm'));
 
+  // フィルター処理済みのイベント
   const filteredEvents = useMemo(() => {
     if (calendarType === 'all') {
       return myEvents;
@@ -75,27 +66,35 @@ const handleClosePopover = () => {
     return myEvents.filter(event => event.category === calendarType);
   }, [calendarType]);
 
+  // --- ハンドラ関数 ---
+
   const handleSelectEvent = (event: MyEvent) => {
     setSelectedEvent(event);
   };
+
   const handleCloseModal = () => {
     setSelectedEvent(null);
   };
+  
+  // ポップオーバーを閉じる関数
+  const handleClosePopover = () => {
+    setPopoverAnchorEl(null);
+    // アニメーション中に内容が消えるのを防ぐため、少し遅らせてクリア
+    setTimeout(() => setPopoverEvents([]), 300);
+  };
 
-  // ★★★ このdayPropGetterは維持します ★★★
-  // 日付セル全体の色を制御します
+  // --- カレンダーのprops設定 ---
+
   const dayPropGetter = (date: Date) => {
     const classNames = [];
     if (isSameDay(date, new Date())) {
       classNames.push('my-today');
     }
     
-    // この日に開始または終了する長期間イベントがあるかチェック
     const isStartOrEnd = filteredEvents.some(event => 
       !isSameDay(event.start, event.end) && (isSameDay(date, event.start) || isSameDay(date, event.end))
     );
     
-    // この日が長期間イベントの中間日にあたるかチェック
     const isContinue = filteredEvents.some(event =>
       !isSameDay(event.start, event.end) && 
       !isSameDay(date, event.start) && 
@@ -111,6 +110,28 @@ const handleClosePopover = () => {
     
     return { className: classNames.join(' ') };
   };
+  
+  // カスタムコンポーネントの設定
+  const components = useMemo(() => ({
+    // 「他 X 件」リンクをカスタムボタンに置き換える
+    showMore: (props: { label: string; events: object[] }) => {
+      const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+        setPopoverEvents(props.events as MyEvent[]);
+        setPopoverAnchorEl(e.currentTarget);
+      };
+      // styleを追加して、デフォルトのリンク風の外観を模倣
+      return (
+        <button
+          type="button"
+          onClick={handleClick}
+          style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#3174ad' }}
+        >
+          {props.label}
+        </button>
+      );
+    },
+  }), []); // 空の依存配列で、コンポーネントの不要な再生成を防ぐ
+
 
   return (
     <Container maxWidth="lg" sx={{ py: 3 }}>
@@ -133,8 +154,6 @@ const handleClosePopover = () => {
       </Box>
 
       <Box sx={{ height: { xs: '70vh', md: '80vh' } }}>
-// App.tsx の return 文の中
-
         <Calendar
           localizer={localizer}
           events={filteredEvents}
@@ -142,49 +161,49 @@ const handleClosePopover = () => {
           endAccessor="end"
           style={{ height: '100%' }}
           dayPropGetter={dayPropGetter}
+          components={components}
           date={currentDate}
           onNavigate={(newDate) => setCurrentDate(newDate)}
           views={['month'] as View[]}
           formats={{ monthHeaderFormat: 'yyyy年 M月' }}
           messages={{
-                      next: "次", previous: "前", today: "今日", month: "月", week: "週", day: "日",
-                      agenda: "予定", date: "日付", time: "時間", event: "イベント",
-                      showMore: (total) => `他 ${total} 件`, 
-                    }}
-        onSelectEvent={(event) => handleSelectEvent(event as MyEvent)}
-  
-
-        onShowMore={(events, date, e) => handleShowMore(events as MyEvent[], date, e)}
-
-        /> 
+            next: "次", previous: "前", today: "今日", month: "月", week: "週", day: "日",
+            agenda: "予定", date: "日付", time: "時間", event: "イベント",
+            showMore: (total) => `他 ${total} 件`, 
+          }}
+          onSelectEvent={(event) => handleSelectEvent(event as MyEvent)}
+        />
       </Box>
+
+      {/* --- 他X件クリック時に表示されるポップオーバー --- */}
       <Popover
-  open={Boolean(popoverAnchorEl)}
-  anchorEl={popoverAnchorEl}
-  onClose={handleClosePopover}
-  anchorOrigin={{
-    vertical: 'bottom',
-    horizontal: 'center',
-  }}
-  transformOrigin={{
-    vertical: 'top',
-    horizontal: 'center',
-  }}
->
-  <List dense>
-    {popoverEvents.map((event) => (
-      <ListItem key={event.id} disablePadding>
-        {/* ListItemButtonをクリックしたら詳細モーダルが開くようにする */}
-        <ListItemButton onClick={() => {
-          handleClosePopover();
-          handleSelectEvent(event);
-        }}>
-          <ListItemText primary={event.title} />
-        </ListItemButton>
-      </ListItem>
-    ))}
-  </List>
-</Popover>
+        open={Boolean(popoverAnchorEl)}
+        anchorEl={popoverAnchorEl}
+        onClose={handleClosePopover}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'center',
+        }}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'center',
+        }}
+      >
+        <List dense>
+          {popoverEvents.map((event) => (
+            <ListItem key={event.id} disablePadding>
+              <ListItemButton onClick={() => {
+                handleClosePopover();
+                handleSelectEvent(event);
+              }}>
+                <ListItemText primary={event.title} />
+              </ListItemButton>
+            </ListItem>
+          ))}
+        </List>
+      </Popover>
+
+      {/* --- イベントクリック時に表示されるモーダル --- */}
       <Modal open={!!selectedEvent} onClose={handleCloseModal} aria-labelledby="modal-title" aria-describedby="modal-description">
         <Box sx={modalStyle}>
           {selectedEvent && (
