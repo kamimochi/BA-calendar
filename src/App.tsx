@@ -29,7 +29,7 @@ type EventData = {
   title: string;
   start: string;
   end?: string;
-  category: 'game' | 'goods' | 'event'; // ★修正点1: 'real_event' -> 'event'
+  category: 'game' | 'goods' | 'event';
   description?: string;
   url?: string;
   urlText?: string;
@@ -41,7 +41,7 @@ interface MyEvent {
   title:string;
   start: Date;
   end: Date;
-  category: 'game' | 'goods' | 'event'; // ★修正点2: 'real_event' -> 'event'
+  category: 'game' | 'goods' | 'event';
   description?: string;
   url?: string;
   urlText?: string;
@@ -52,7 +52,7 @@ const myEvents: MyEvent[] = (eventsData as EventData[]).map((event) => ({
   ...event,
   start: new Date(event.start),
   end: new Date(event.end || event.start), 
-  category: event.category as 'game' | 'goods' | 'event', // ★修正点3: 'real_event' -> 'event'
+  category: event.category as 'game' | 'goods' | 'event',
 }));
 
 // date-fnsのローカライザー設定
@@ -81,7 +81,7 @@ const modalStyle = {
 };
 
 function App() {
-  const [calendarType, setCalendarType] = useState<'all' | 'game' | 'goods' | 'event'>('all'); // ★修正点4: 'real_event' -> 'event'
+  const [calendarType, setCalendarType] = useState<'all' | 'game' | 'goods' | 'event'>('all');
   const [selectedEvent, setSelectedEvent] = useState<MyEvent | null>(null);
   const [currentDate, setCurrentDate] = useState(new Date());
 
@@ -118,6 +118,9 @@ function App() {
   };
 
   return (
+    // ★★★ ここが中央寄せのポイントです ★★★
+    // maxWidth="lg" を設定することで、PCなどの大画面ではコンテンツの横幅が
+    // 一定以上に広がるのを防ぎ、自動的に中央に配置します。
     <Container maxWidth="lg" sx={{ py: 3 }}>
       <Typography variant="h4" component="h1" gutterBottom align="center" sx={{ fontSize: { xs: '1.8rem', sm: '2.125rem' } }}>
         ブルアカ カレンダー
@@ -137,14 +140,11 @@ function App() {
         >
           <Button onClick={() => setCalendarType('all')} disabled={calendarType === 'all'}>すべて</Button>
           <Button onClick={() => setCalendarType('game')} disabled={calendarType === 'game'}>ゲーム内イベント</Button>
-
           <Button onClick={() => setCalendarType('goods')} disabled={calendarType === 'goods'}>グッズ情報</Button>
-          {/* ★修正点5: 'real_event' -> 'event' */}
           <Button onClick={() => setCalendarType('event')} disabled={calendarType === 'event'}>リアルイベント</Button>
         </ButtonGroup>
       </Box>
 
-      {/* 以下、変更なし */}
       <Box sx={{ height: { xs: '70vh', md: '80vh' } }}>
         <Calendar
           localizer={localizer}
