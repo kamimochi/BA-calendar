@@ -170,6 +170,7 @@ function App() {
             date: "日付",
             time: "時間",
             event: "イベント",
+            showMore: (total) => `他 ${total} 件`,
           }}
           onSelectEvent={(event) => handleSelectEvent(event as MyEvent)}
         />
