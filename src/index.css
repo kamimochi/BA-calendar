@@ -3,6 +3,8 @@
   line-height: 1.5;
   font-weight: 400;
 
+  /* ライトモード時のデフォルト色 */
+  --color-text: #213547;
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
   background-color: #242424;
@@ -13,55 +15,96 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* ★修正点: bodyのスタイルをシンプルにし、flex関連の指定を削除 */
-body {
-  margin: 0;
+a {
+  font-weight: 500;
+  color: #646cff;
+  text-decoration: inherit;
+}
+a:hover {
+  color: #535bf2;
 }
 
-/* 
-  以下のスタイルはMUIコンポーネントで実現しているため、
-  グローバルなCSSからは削除またはコメントアウトしても問題ありません。
-  今回はシンプルにするため削除しました。
-*/
+body {
+  margin: 0;
+  display: flex;
+  place-items: center;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}
+
+button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: #1a1a1a;
+  cursor: pointer;
+  transition: border-color 0.25s;
+}
+button:hover {
+  border-color: #646cff;
+}
+button:focus,
+button:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
 
 @media (prefers-color-scheme: light) {
   :root {
+    /* ダークモード時のデフォルト色 */
+    --color-text-dark: rgba(255, 255, 255, 0.87);
     color: #213547;
     background-color: #ffffff;
   }
+  a:hover {
+    color: #747bff;
+  }
+  button {
+    background-color: #f9f9f9;
+  }
 }
 
-/* --- ここからは、これまで通りカレンダーのカスタムスタイルです --- */
+/* --- ここからがアプリ独自のスタイル --- */
 
 /* 「今日」のセルのデフォルト背景色をなくす */
 .rbc-month-view .my-today {
-  background-color: transparent;
+  background-color: transparent !important;
 }
 
 /* 「今日」の日付の数字（リンク）のスタイル */
 .my-today .rbc-button-link {
+  /* 円の形とサイズを指定 */
   width: 30px;
   height: 30px;
-  border-radius: 50%;
-  background-color: #1281e8;
-  color: white !important;
+  border-radius: 50%; /* 正円にする */
+  
+  /* 枠線で円を描く */
+  border: 2px solid #1281e8; 
+  background-color: transparent !important; /* 背景は透明に */
+  
+  /* 文字色はテーマに合わせる */
+  color: var(--color-text, #213547);
   font-weight: bold;
+  
+  /* 円の真ん中に数字を配置するための設定 */
   display: inline-flex;
   justify-content: center;
   align-items: center;
 }
 
-/* 「今日」の日付にマウスを乗せたときのスタイル */
-.my-today .rbc-button-link:hover {
-  background-color: #0d6ac4;
-  color: white !important;
-}
-
-/* 日付が選択された時のスタイルも統一感を出す */
+/* 日付が選択された時のスタイル（こちらは背景色を塗るスタイルを維持） */
 .rbc-button-link.rbc-active {
   background-color: #1281e8 !important;
   color: white !important;
   border-radius: 50%;
+  border-color: transparent;
   width: 30px;
   height: 30px;
   display: inline-flex;
@@ -74,14 +117,30 @@ body {
   background-color: #eaf6ff;
 }
 
-/* ダークモード対応 */
+/* --- ダークモード時のスタイル --- */
 @media (prefers-color-scheme: dark) {
+  /* ダークモード時の「今日」の文字色 */
+  .my-today .rbc-button-link {
+    color: var(--color-text-dark, rgba(255, 255, 255, 0.87));
+  }
+  
+  /* ダークモード時のイベント背景色 */
   .rbc-day-bg.has-event:not(.rbc-off-range-bg) {
     background-color: rgba(18, 129, 232, 0.15); 
   }
+
+  /* ダークモード時のカレンダーツールバーの文字色 */
+  .rbc-toolbar .rbc-toolbar-label,
+  .rbc-toolbar button {
+    color: rgba(255, 255, 255, 0.87);
+  }
+
+  .rbc-toolbar button:disabled {
+    color: rgba(255, 255, 255, 0.5);
+  }
 }
 
-/* スマホ表示用のスタイル調整 */
+/* --- スマホ表示用のスタイル調整 --- */
 @media (max-width: 600px) {
   .rbc-month-view .rbc-day-bg .rbc-button-link {
     font-size: 0.8rem;
@@ -91,24 +150,5 @@ body {
   .rbc-button-link.rbc-active {
     width: 26px;
     height: 26px;
-  }
-}
-/* --- ここから追記 --- */
-
-/* ダークモード時のカレンダーツールバーの文字色を修正 */
-@media (prefers-color-scheme: dark) {
-  /* "2025年 6月" などの年月表示 */
-  .rbc-toolbar .rbc-toolbar-label {
-    color: rgba(255, 255, 255, 0.87); /* 標準的な白い文字色 */
-  }
-
-  /* "今日", "前", "次" などのボタン */
-  .rbc-toolbar button {
-    color: rgba(255, 255, 255, 0.87);
-  }
-
-  /* 無効化されたボタン（例：今月の時の"今日"ボタン）の文字色 */
-  .rbc-toolbar button:disabled {
-    color: rgba(255, 255, 255, 0.5);
   }
 }
