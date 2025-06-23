@@ -1,10 +1,21 @@
 [
   {
     "id": 1,
-    "title": "【ゲーム内】特別依頼報酬3倍キャンペーン",
-    "start": "2023-10-25T00:00:00",
-    "end": "2023-10-31T23:59:59",
-    "category": "game"
+    "title": "【新イベ】百ヨリ出ズル一輪ノ〜いざ尋常に、水上勝負〜",
+    "start": "2025-06-25T00:00:00",
+    "end": "2025-07-09T10:59:59",
+    "category": "game",
+    "description": "今イベントは配布生徒はありません。",
+  },
+  {
+    "id": 2,
+    "title": "「百花繚乱」水着グッズ",
+    "start": "2025-06-26T12:00:00",
+    "end": "2025-07-14T23:59:00",
+    "category": "goods",
+    "description": "百鬼夜行所属生徒の水着イベント実施を記念し、関連グッズを販売します！",
+    "url": "https://shop.yostar.co.jp/",
+    "urlText": "公式サイト" 
   },
   {
     "id": 3,
@@ -47,15 +58,17 @@
     "id": 7,
     "title": "ワイヤレスヘッドホン「プラナver.」",
     "start": "2025-06-24T15:00:00",
+    "end": "2025-07-18T15:00:00",
     "category": "goods",
     "description": "限定ボイス付きワイヤレスヘッドホン！\n周辺機器やアクスタ、缶バッチなども同時発売です！",
-    "url": "https://onkyodirect.jp/shop/pages/BA_PLANA.aspxm",
+    "url": "https://onkyodirect.jp/shop/pages/BA_PLANA.aspx",
     "urlText": "ONKYO公式サイト" 
   },
   {
     "id": 8,
     "title": "「ゲーム開発部」Yostar official shopグッズ",
     "start": "2025-06-26T00:00:00",
+    "end": "2025-07-14T23:59:00",
     "category": "goods",
     "description": "新規書き下ろしイラストを使用した、ゲーム開発部の多彩なグッズが発売されます！\nかなり種類が豊富なのでぜひ公式サイトをご覧ください！",
     "url": "https://shop.yostar.co.jp/",
