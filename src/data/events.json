@@ -7,15 +7,6 @@
     "category": "game"
   },
   {
-    "id": 2,
-    "title": "#ゲーム開発部Yostar OFFICIAL SHOP ONLINE",
-    "start": "2025-06-26T12:00:00",
-    "category": "goods",
-    "description": "新規描き下ろしイラストを使用したグッズの発売！",
-    "url": "https://x.com/yostarjp_info/status/1936620165828854093",
-    "urlText": "公式X" 
-  },
-  {
     "id": 3,
     "title": "夏のブルアカらいぶ！さんしゃいんさまーぱーてぃー！ＳＰ",
     "start": "2025-07-19T18:00:00",
@@ -57,7 +48,7 @@
     "title": "ワイヤレスヘッドホン「プラナver.」",
     "start": "2025-06-24T15:00:00",
     "category": "goods",
-    "description": "限定ボイス付きワイヤレスヘッドホン！¥n周辺機器やアクスタ、缶バッチなども同時発売です！",
+    "description": "限定ボイス付きワイヤレスヘッドホン！\n周辺機器やアクスタ、缶バッチなども同時発売です！",
     "url": "https://onkyodirect.jp/shop/pages/BA_PLANA.aspxm",
     "urlText": "ONKYO公式サイト" 
   },
@@ -66,7 +57,7 @@
     "title": "「ゲーム開発部」Yostar official shopグッズ",
     "start": "2025-06-26T00:00:00",
     "category": "goods",
-    "description": "新規書き下ろしイラストを使用した、ゲーム開発部の多彩なグッズが発売されます！¥nかなり種類が豊富なのでぜひ公式サイトをご覧ください！",
+    "description": "新規書き下ろしイラストを使用した、ゲーム開発部の多彩なグッズが発売されます！\nかなり種類が豊富なのでぜひ公式サイトをご覧ください！",
     "url": "https://shop.yostar.co.jp/",
     "urlText": "公式サイト" 
   }
