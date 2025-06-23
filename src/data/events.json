@@ -37,10 +37,37 @@
   {
     "id": 5,
     "title": "サオリ フィギュア",
-    "start": "2025-06-27T00:00:00",
+    "start": "2025-06-23T00:00:00",
     "category": "goods",
     "description": "予約は各種オンラインサイトにて可能です。\n恐らくWonderful Works公式サイトに掲載されるものと思われます。",
     "url": "http://wonderfulworks.co.jp",
     "urlText": "Wonderful Works公式サイト" 
+  },
+  {
+    "id": 6,
+    "title": "ツバキ(ガイド) フィギュア",
+    "start": "2025-06-24T00:00:00",
+    "category": "goods",
+    "description": "予約はグッドスマイルカンパニー公式サイトより可能です。",
+    "url": "https://www.goodsmile.com",
+    "urlText": "グッスマ公式サイト" 
+  },
+  {
+    "id": 7,
+    "title": "ワイヤレスヘッドホン「プラナver.」",
+    "start": "2025-06-24T15:00:00",
+    "category": "goods",
+    "description": "限定ボイス付きワイヤレスヘッドホン！¥n周辺機器やアクスタ、缶バッチなども同時発売です！",
+    "url": "https://onkyodirect.jp/shop/pages/BA_PLANA.aspxm",
+    "urlText": "ONKYO公式サイト" 
+  },
+  {
+    "id": 8,
+    "title": "「ゲーム開発部」Yostar official shopグッズ",
+    "start": "2025-06-26T00:00:00",
+    "category": "goods",
+    "description": "新規書き下ろしイラストを使用した、ゲーム開発部の多彩なグッズが発売されます！¥nかなり種類が豊富なのでぜひ公式サイトをご覧ください！",
+    "url": "https://shop.yostar.co.jp/",
+    "urlText": "公式サイト" 
   }
 ]
