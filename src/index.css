@@ -103,30 +103,27 @@ button:focus-visible {
 .rbc-day-bg.is-start-or-end-day {
   background-color: #eaf6ff;
 }
-/* 中間日のセルの背景色はデフォルトのままにするので、ここでは指定しない */
 /* .rbc-day-bg.is-continue-day { ... } */
 
 
-/* イベントバーのスタイル */
-/* 「前から」も「後へも」イベントが続く日、つまり「中間日」のバーにだけ適用 */
-.rbc-event.rbc-event-continues-prior.rbc-event-continues-after {
+/* ★★★★★ ここが最終修正ポイントです ★★★★★ */
+/* 「中間日」のイベントバー本体のスタイル */
+.rbc-event.rbc-event-allday.rbc-event-continues-prior.rbc-event-continues-after {
   background-color: transparent !important;
   border: none !important;
   box-shadow: none !important;
 }
-.rbc-event.rbc-event-continues-prior.rbc-event-continues-after .rbc-event-content {
+/* 「中間日」のイベントのテキスト部分 */
+.rbc-event.rbc-event-allday.rbc-event-continues-prior.rbc-event-continues-after .rbc-event-content {
   color: transparent !important;
 }
 
 
 /* --- ダークモード時のスタイル --- */
 @media (prefers-color-scheme: dark) {
-  /* 「今日」の文字色 */
   .my-today .rbc-button-link {
     color: var(--color-text-dark, rgba(255, 255, 255, 0.87));
   }
-  
-  /* カレンダーツールバーの文字色 */
   .rbc-toolbar .rbc-toolbar-label,
   .rbc-toolbar button {
     color: rgba(255, 255, 255, 0.87);
@@ -134,10 +131,12 @@ button:focus-visible {
   .rbc-toolbar button:disabled {
     color: rgba(255, 255, 255, 0.5);
   }
-
-  /* 日付セルの背景色 */
   .rbc-day-bg.is-start-or-end-day {
     background-color: rgba(18, 129, 232, 0.15);
+  }
+  /* ダークモード時の「中間日」のバーも透明にする（念のため） */
+  .rbc-event.rbc-event-allday.rbc-event-continues-prior.rbc-event-continues-after {
+    background-color: transparent !important;
   }
 }
 
