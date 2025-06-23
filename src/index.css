@@ -107,28 +107,25 @@ button:focus-visible {
 
 
 
-/* 1. まず、すべてのイベントバーを半透明にする（これが基本スタイル） */
+/* 1. デフォルトですべてのイベントは不透明にする（基本スタイル）*/
 .rbc-event {
-  /* お好みの透明度に調整してください (例: 60%不透明) */
-  opacity: 0.6;
-  transition: opacity 0.2s; /* ホバー時に滑らかに変化させる（任意） */
+  opacity: 1;
+  transition: opacity 0.2s;
 }
 
-/* 2. イベントの「開始日」と「終了日」だけ不透明に戻す */
-.rbc-event.rbc-event-start,
-.rbc-event.rbc-event-end {
-  opacity: 1;
+/* 2. 「複数日にまたがる中間日」だけを狙って半透明にする */
+/* 「前の週から続き」かつ「次の週へ続く」または「前の日から続き」かつ「次の日へ続く」イベント */
+.rbc-event:not(.rbc-event-start):not(.rbc-event-end) {
+  opacity: 0.6; /* お好みの透明度に調整 */
 }
 
 /* 3. すべてのイベントバーでテキストを強制的に表示する */
-/* ライブラリの `color: transparent !important;` を上書きします */
-.rbc-event .rbc-event-content {
-  /* 背景色に合わせてテキスト色を調整してください */
+.rbc-event-content {
   color: white !important;
 }
 
 /* 4. （任意）半透明の中間日にマウスを乗せたら不透明にする */
-.rbc-event:hover {
+.rbc-event:not(.rbc-event-start):not(.rbc-event-end):hover {
   opacity: 1;
 }
 
