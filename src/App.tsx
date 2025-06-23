@@ -1,5 +1,5 @@
-import { useState, useMemo } from 'react';
-import { Calendar } from 'react-big-calendar'; 
+import React, { useState, useMemo } from 'react'; // Reactをインポート
+import { Calendar, EventWrapperProps } from 'react-big-calendar'; // EventWrapperPropsをインポート
 import { format, parse, startOfWeek, getDay, isSameDay, isWithinInterval, startOfDay, endOfDay } from 'date-fns';
 import { ja } from 'date-fns/locale';
 import { dateFnsLocalizer } from 'react-big-calendar';
@@ -23,50 +23,43 @@ import {
 // JSONインポート
 import eventsData from "./data/events.json";
 
-// JSONデータの型をここで定義する
-type EventData = {
-  id: number;
-  title: string;
-  start: string;
-  end?: string;
-  category: 'game' | 'goods' | 'event';
-  description?: string;
-  url?: string;
-  urlText?: string;
+// 型定義... (この部分は変更なし)
+type EventData = { id: number; title: string; start: string; end?: string; category: 'game' | 'goods' | 'event'; description?: string; url?: string; urlText?: string; };
+interface MyEvent { id: number; title: string; start: Date; end: Date; category: 'game' | 'goods' | 'event'; description?: string; url?: string; urlText?: string; }
+const myEvents: MyEvent[] = (eventsData as EventData[]).map((event) => ({ ...event, start: new Date(event.start), end: new Date(event.end || event.start), category: event.category as 'game' | 'goods' | 'event' }));
+const locales = { 'ja': ja, };
+const localizer = dateFnsLocalizer({ format, parse, startOfWeek: (date: Date) => startOfWeek(date, { weekStartsOn: 0 }), getDay, locales });
+
+// ★★★ ここからが今回の修正の核心です ★★★
+// カスタムイベントラッパーコンポーネントを定義
+const MyEventWrapper: React.FC<EventWrapperProps> = ({ children, event, continuesPrior, continuesAfter }) => {
+  const theme = useTheme();
+  const isDarkMode = theme.palette.mode === 'dark';
+
+  const style = useMemo(() => {
+    // 複数日にまたがるイベントの中間日かどうかを判定
+    const isContinue = continuesPrior && continuesAfter;
+    
+    if (isContinue) {
+      // 中間日のスタイル
+      return {
+        ...((children as React.ReactElement).props.style),
+        backgroundColor: isDarkMode ? 'rgba(18, 129, 232, 0.15)' : '#eaf6ff',
+        color: 'transparent',
+        borderLeft: 'none',
+        borderRight: 'none',
+      };
+    }
+
+    // 開始日、終了日、1日イベントはデフォルトのスタイルをそのまま使う
+    return (children as React.ReactElement).props.style;
+  }, [children, continuesPrior, continuesAfter, isDarkMode]);
+  
+  // スタイルを適用した子要素(イベント本体)を返す
+  return React.cloneElement(children as React.ReactElement, { style });
 };
+// ★★★ ここまで ★★★
 
-// カレンダーが内部で使うイベントの型
-interface MyEvent {
-  id: number;
-  title:string;
-  start: Date;
-  end: Date;
-  category: 'game' | 'goods' | 'event';
-  description?: string;
-  url?: string;
-  urlText?: string;
-}
-
-// JSONの文字列の日付をDateオブジェクトに変換
-const myEvents: MyEvent[] = (eventsData as EventData[]).map((event) => ({
-  ...event,
-  start: new Date(event.start),
-  end: new Date(event.end || event.start), 
-  category: event.category as 'game' | 'goods' | 'event',
-}));
-
-// date-fnsのローカライザー設定
-const locales = {
-  'ja': ja,
-};
-
-const localizer = dateFnsLocalizer({
-  format,
-  parse,
-  startOfWeek: (date: Date) => startOfWeek(date, { weekStartsOn: 0 }),
-  getDay,
-  locales,
-});
 
 const modalStyle = {
   position: 'absolute' as const,
@@ -118,7 +111,6 @@ function App() {
   };
 
   return (
-    // このContainerを使った中央揃えスタイルを維持します
     <Container maxWidth="lg" sx={{ py: 3 }}>
       <Typography variant="h4" component="h1" gutterBottom align="center" sx={{ fontSize: { xs: '1.8rem', sm: '2.125rem' } }}>
         ブルアカ カレンダー
@@ -129,12 +121,10 @@ function App() {
           variant="contained" 
           aria-label="カレンダー種類選択ボタン"
           orientation={isPc ? 'horizontal' : 'vertical'}
-          // ★★★ ここが修正ポイントです ★★★
-          // 選択中(disabled)のボタンのスタイルを上書きします
           sx={{
             '& .Mui-disabled': {
-              backgroundColor: '#333', // 選択中のボタンの背景色（暗い色）
-              color: 'white' // ★文字色は白のまま維持します
+              backgroundColor: '#333',
+              color: 'white'
             }
           }}
         >
@@ -170,18 +160,18 @@ function App() {
             date: "日付",
             time: "時間",
             event: "イベント",
-            showMore: (total) => `他 ${total} 件`,
+            showMore: (total) => `他 ${total} 件`, 
           }}
           onSelectEvent={(event) => handleSelectEvent(event as MyEvent)}
+          // ★★★ カスタムコンポーネントをカレンダーに適用 ★★★
+          components={{
+            eventWrapper: MyEventWrapper
+          }}
         />
       </Box>
 
-      <Modal
-        open={!!selectedEvent}
-        onClose={handleCloseModal}
-        aria-labelledby="modal-title"
-        aria-describedby="modal-description"
-      >
+      {/* 以下、変更なし */}
+      <Modal open={!!selectedEvent} onClose={handleCloseModal} aria-labelledby="modal-title" aria-describedby="modal-description">
         <Box sx={modalStyle}>
           {selectedEvent && (
             <Card>
@@ -191,19 +181,8 @@ function App() {
                   <strong>期間:</strong> {format(selectedEvent.start, 'yyyy/MM/dd HH:mm')}
                   {!isSameDay(selectedEvent.start, selectedEvent.end) && ` - ${format(selectedEvent.end, 'yyyy/MM/dd HH:mm')}`}
                 </Typography>
-                {selectedEvent.description && (
-                  <Typography sx={{ mt: 2 }}>
-                    <strong>詳細:</strong> {selectedEvent.description}
-                  </Typography>
-                )}
-                {selectedEvent.url && selectedEvent.urlText && (
-                  <Typography sx={{ mt: 2 }}>
-                    <strong>リンク:</strong>{' '}
-                    <a href={selectedEvent.url} target="_blank" rel="noopener noreferrer">
-                      {selectedEvent.urlText}
-                    </a>
-                  </Typography>
-                )}
+                {selectedEvent.description && ( <Typography sx={{ mt: 2 }}> <strong>詳細:</strong> {selectedEvent.description} </Typography> )}
+                {selectedEvent.url && selectedEvent.urlText && ( <Typography sx={{ mt: 2 }}> <strong>リンク:</strong>{' '} <a href={selectedEvent.url} target="_blank" rel="noopener noreferrer"> {selectedEvent.urlText} </a> </Typography> )}
               </CardContent>
             </Card>
           )}
