@@ -133,23 +133,23 @@ const handleClosePopover = () => {
       </Box>
 
       <Box sx={{ height: { xs: '70vh', md: '80vh' } }}>
-        <Calendar
-          localizer={localizer}
-          events={filteredEvents} // ★★★ myEvents から filteredEvents に変更 ★★★
-          startAccessor="start"
-          endAccessor="end"
-          style={{ height: '100%' }}
-          dayPropGetter={dayPropGetter}
-          date={currentDate}
-          onNavigate={(newDate) => setCurrentDate(newDate)}
-          views={['month'] as View[]}
-          formats={{ monthHeaderFormat: 'yyyy年 M月' }}
-            messages={{
-              next: "次", previous: "前", today: "今日", month: "月", week: "週", day: "日",
-              agenda: "予定", date: "日付", time: "時間", event: "イベント",
-              showMore: (total) => `他 ${total} 件`, 
-                      }}
-          onSelectEvent={(event) => handleSelectEvent(event as MyEvent)}
+<Calendar
+  localizer={localizer}
+  events={filteredEvents}
+  startAccessor="start"
+  endAccessor="end"
+  style={{ height: '100%' }}
+  dayPropGetter={dayPropGetter}
+  date={currentDate}
+  onNavigate={(newDate) => setCurrentDate(newDate)}
+  views={['month'] as View[]}
+  formats={{ monthHeaderFormat: 'yyyy年 M月' }}
+  messages={{
+    next: "次", previous: "前", today: "今日", month: "月", week: "週", day: "日",
+    agenda: "予定", date: "日付", time: "時間", event: "イベント",
+    showMore: (total) => `他 ${total} 件`, 
+  }}
+  onSelectEvent={(event) => handleSelectEvent(event as MyEvent)}
       />
       </Box>
       <Popover
