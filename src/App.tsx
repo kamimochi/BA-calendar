@@ -47,7 +47,6 @@ function App() {
   const [calendarType, setCalendarType] = useState<'all' | 'game' | 'goods' | 'event'>('all');
   const [selectedEvent, setSelectedEvent] = useState<MyEvent | null>(null);
   const [currentDate, setCurrentDate] = useState(new Date());
-  // ★ カレンダーのビュー（月/週/日）を管理するstateを追加
   const [currentView, setCurrentView] = useState<View>('month');
 
   const theme = useTheme();
@@ -70,14 +69,12 @@ function App() {
     setSelectedEvent(null);
   };
 
-  // ★「他 X 件」クリック時の処理を定義
   const handleShowMore = (date: Date) => {
-    setCurrentView('day'); // 日ビューに切り替える
-    setCurrentDate(date);   // その日付に移動する
+    setCurrentView('day');
+    setCurrentDate(date);
   };
 
   const dayPropGetter = (date: Date) => {
-    // (この関数の中身は変更なし)
     const classNames = [];
     if (isSameDay(date, new Date())) {
       classNames.push('my-today');
@@ -116,24 +113,20 @@ function App() {
           style={{ height: '100%' }}
           dayPropGetter={dayPropGetter}
           
-          // ★ カレンダーのビューを制御するpropsを追加/修正
           view={currentView}
           onView={(view) => setCurrentView(view)}
           date={currentDate}
           onNavigate={(newDate) => setCurrentDate(newDate)}
           
-          // ★ 「他 X 件」クリック時の動作を onShowMore に設定
-          onShowMore={(events, date) => handleShowMore(date)}
+          // ★★★★★ 未使用の引数`events`を `_events` に修正 ★★★★★
+          onShowMore={(_events, date) => handleShowMore(date)}
           
           onSelectEvent={(event) => handleSelectEvent(event as MyEvent)}
           
-          // メッセージはシンプルに
           messages={{ next: "次", previous: "前", today: "今日", month: "月", week: "週", day: "日", showMore: (total) => `他 ${total} 件` }}
         />
       </Box>
       
-      {/* Popoverはもう使いません */}
-
       <Modal open={!!selectedEvent} onClose={handleCloseModal}>
         <Box sx={modalStyle}>
           {selectedEvent && (
