@@ -23,27 +23,24 @@ import {
 // JSONインポート
 import eventsData from "./data/events.json";
 
-// 型定義
+// JSONデータの型をここで定義する
 type EventData = {
   id: number;
   title: string;
   start: string;
   end?: string;
-  category: 'game' | 'goods' | 'event';
+  category: 'game' | 'goods' | 'real_event';
   description?: string;
-  url?: string;
-  urlText?: string;
 };
 
+// カレンダーが内部で使うイベントの型
 interface MyEvent {
   id: number;
   title: string;
   start: Date;
   end: Date;
-  category: 'game' | 'goods' | 'event';
+  category: 'game' | 'goods' | 'real_event';
   description?: string;
-  url?: string;
-  urlText?: string;
 }
 
 // JSONの文字列の日付をDateオブジェクトに変換
@@ -51,7 +48,7 @@ const myEvents: MyEvent[] = (eventsData as EventData[]).map((event) => ({
   ...event,
   start: new Date(event.start),
   end: new Date(event.end || event.start), 
-  category: event.category as 'game' | 'goods' | 'event',
+  category: event.category as 'game' | 'goods' | 'real_event',
 }));
 
 // date-fnsのローカライザー設定
@@ -80,7 +77,7 @@ const modalStyle = {
 };
 
 function App() {
-  const [calendarType, setCalendarType] = useState<'all' | 'game' | 'goods' | 'event'>('all');
+  const [calendarType, setCalendarType] = useState<'all' | 'game' | 'goods' | 'real_event'>('all');
   const [selectedEvent, setSelectedEvent] = useState<MyEvent | null>(null);
   const [currentDate, setCurrentDate] = useState(new Date());
 
@@ -127,14 +124,22 @@ function App() {
           variant="contained" 
           aria-label="カレンダー種類選択ボタン"
           orientation={isPc ? 'horizontal' : 'vertical'}
+          // ★修正点: disabled状態のボタンのスタイルを上書き
+          sx={{
+            '& .Mui-disabled': {
+              backgroundColor: '#333', // 選択中のボタンの背景色
+              color: 'rgba(255, 255, 255, 0.7)', // 選択中のボタンの文字色
+            }
+          }}
         >
           <Button onClick={() => setCalendarType('all')} disabled={calendarType === 'all'}>すべて</Button>
           <Button onClick={() => setCalendarType('game')} disabled={calendarType === 'game'}>ゲーム内イベント</Button>
           <Button onClick={() => setCalendarType('goods')} disabled={calendarType === 'goods'}>グッズ情報</Button>
-          <Button onClick={() => setCalendarType('event')} disabled={calendarType === 'event'}>イベント等</Button>
+          <Button onClick={() => setCalendarType('real_event')} disabled={calendarType === 'real_event'}>リアルイベント</Button>
         </ButtonGroup>
       </Box>
 
+      {/* 以下、変更なし */}
       <Box sx={{ height: { xs: '70vh', md: '80vh' } }}>
         <Calendar
           localizer={localizer}
@@ -184,20 +189,6 @@ function App() {
                   <Typography sx={{ mt: 2 }}>
                     <strong>詳細:</strong> {selectedEvent.description}
                   </Typography>
-                )}
-                
-                {/* ★修正点: この条件分岐により、このブロック内では `url` は必ず string 型になる */}
-                {selectedEvent.url && selectedEvent.urlText && (
-                  <Box sx={{ mt: 2, textAlign: 'right' }}>
-                    <Button
-                      variant="contained"
-                      href={selectedEvent.url} 
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      {selectedEvent.urlText}
-                    </Button>
-                  </Box>
                 )}
               </CardContent>
             </Card>
