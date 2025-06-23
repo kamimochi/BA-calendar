@@ -1,5 +1,4 @@
 import React, { useState, useMemo } from 'react';
-// ★修正点1: 型インポートの修正
 import { Calendar, type View, type DateLocalizer } from 'react-big-calendar'; 
 import { format, parse, startOfWeek, getDay, isSameDay, isWithinInterval, startOfDay, endOfDay } from 'date-fns';
 import { ja } from 'date-fns/locale';
@@ -18,10 +17,16 @@ type EventData = { id: number; title: string; start: string; end?: string; categ
 interface MyEvent { id: number; title: string; start: Date; end: Date; category: 'game' | 'goods' | 'event'; description?: string; url?: string; urlText?: string; }
 const myEvents: MyEvent[] = (eventsData as EventData[]).map((event) => ({ ...event, start: new Date(event.start), end: new Date(event.end || event.start), category: event.category as 'game' | 'goods' | 'event' }));
 
-// ★修正点2: dateFnsLocalizerの型が厳密になったため、anyキャストで対応
+// ★★★★★ 復活させた最重要の行 ★★★★★
+// カレンダーの日本語化設定
+const locales = {
+  'ja': ja,
+};
+
+// dateFnsLocalizerにlocalesを渡す
 const localizer: DateLocalizer = dateFnsLocalizer({ format, parse, startOfWeek: (date: Date) => startOfWeek(date, { weekStartsOn: 0 }), getDay, locales });
 
-// ★修正点3: カスタムラッパーコンポーネント。引数の型を`any`にして型エラーを強制的に突破します。
+// カスタムイベントラッパーコンポーネント
 const MyEventWrapper = (props: any) => {
   const { children, style: wrapperStyle, continuesPrior, continuesAfter } = props;
   
@@ -31,18 +36,26 @@ const MyEventWrapper = (props: any) => {
   const newStyle = useMemo(() => {
     const isContinue = continuesPrior && continuesAfter;
     
+    // children.props.styleが存在しない場合も考慮
+    const originalStyle = children && children.props ? children.props.style : {};
+    
     if (isContinue) {
       return {
         ...wrapperStyle,
-        ...children.props.style,
+        ...originalStyle,
         backgroundColor: isDarkMode ? 'rgba(18, 129, 232, 0.15)' : '#eaf6ff',
         color: 'transparent',
         borderLeft: 'none',
         borderRight: 'none',
       };
     }
-    return { ...wrapperStyle, ...children.props.style };
-  }, [wrapperStyle, children.props.style, continuesPrior, continuesAfter, isDarkMode]);
+    return { ...wrapperStyle, ...originalStyle };
+  }, [wrapperStyle, children, continuesPrior, continuesAfter, isDarkMode]);
+
+  // childrenが有効なReact要素かチェックしてからクローンする
+  if (!React.isValidElement(children)) {
+    return null;
+  }
 
   return React.cloneElement(children, { style: newStyle });
 };
@@ -126,7 +139,7 @@ function App() {
           dayPropGetter={dayPropGetter}
           date={currentDate}
           onNavigate={(newDate) => setCurrentDate(newDate)}
-          views={['month'] as View[]} // ★修正点4: 型を明示
+          views={['month'] as View[]}
           formats={{ monthHeaderFormat: 'yyyy年 M月' }}
           messages={{
             next: "次", previous: "前", today: "今日", month: "月", week: "週", day: "日",
@@ -134,7 +147,6 @@ function App() {
             showMore: (total) => `他 ${total} 件`, 
           }}
           onSelectEvent={(event) => handleSelectEvent(event as MyEvent)}
-          // ★修正点5: カスタムコンポーネントを適用
           components={{
             eventWrapper: MyEventWrapper
           }}
