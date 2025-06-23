@@ -106,16 +106,30 @@ button:focus-visible {
 /* .rbc-day-bg.is-continue-day { ... } */
 
 
-/* ★★★★★ ここが最終修正ポイントです ★★★★★ */
-/* 「中間日」のイベントバー本体のスタイル */
-.rbc-event.rbc-event-allday.rbc-event-continues-prior.rbc-event-continues-after {
-  background-color: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
+
+/* 1. まず、すべてのイベントバーを半透明にする（これが基本スタイル） */
+.rbc-event {
+  /* お好みの透明度に調整してください (例: 60%不透明) */
+  opacity: 0.6;
+  transition: opacity 0.2s; /* ホバー時に滑らかに変化させる（任意） */
 }
-/* 「中間日」のイベントのテキスト部分 */
-.rbc-event.rbc-event-allday.rbc-event-continues-prior.rbc-event-continues-after .rbc-event-content {
-  color: transparent !important;
+
+/* 2. イベントの「開始日」と「終了日」だけ不透明に戻す */
+.rbc-event.rbc-event-start,
+.rbc-event.rbc-event-end {
+  opacity: 1;
+}
+
+/* 3. すべてのイベントバーでテキストを強制的に表示する */
+/* ライブラリの `color: transparent !important;` を上書きします */
+.rbc-event .rbc-event-content {
+  /* 背景色に合わせてテキスト色を調整してください */
+  color: white !important;
+}
+
+/* 4. （任意）半透明の中間日にマウスを乗せたら不透明にする */
+.rbc-event:hover {
+  opacity: 1;
 }
 
 
