@@ -106,47 +106,38 @@ body {
   }
 }
 
+/* --- 長期間イベントのスタイル調整 (改訂版) --- */
 
-/* --- 長期間イベントのスタイル調整 --- */
-
-/* 2日以上にまたがるイベントバー全体に適用 */
-.rbc-row-segment .rbc-event:not(.rbc-event-start.rbc-event-end) {
-  /* 期間中の背景色（薄い青）をここで指定 */
-  background-color: #eaf6ff !important; 
-  color: transparent !important; /* テキストを透明にする */
-  border-color: transparent !important; /* 枠線を透明にする */
-  min-height: 10px; /* バーの高さを少し低くする */
-  opacity: 0.7; /* 少し半透明にする */
+/* 2日以上にまたがるイベントの「間の日」のスタイル */
+.rbc-row-segment .rbc-event.rbc-event-continue {
+  background-color: #eaf6ff !important; /* 薄い青色の背景 */
+  color: transparent !important;         /* テキストを透明に */
+  border-left: none !important;           /* 左の枠線を消す */
+  border-right: none !important;          /* 右の枠線を消す */
 }
 
 /* 2日以上にまたがるイベントの「開始日」のスタイル */
 .rbc-row-segment .rbc-event.rbc-event-start:not(.rbc-event-end) {
-  /* 元のイベントの色に戻す */
-  background-color: var(--rbc-event-bg-color, #3174ad) !important; 
-  color: var(--rbc-event-color, #fff) !important;
-  border: 1px solid var(--rbc-event-border-color, #265985) !important;
-  min-height: 25px; /* 高さを元に戻す */
-  opacity: 1; /* 不透明に戻す */
+  /* 何も上書きしないことで、デフォルトのスタイルを維持する */
+  /* このセレクタは優先度を上げるために存在 */
 }
 
 /* 2日以上にまたがるイベントの「終了日」のスタイル */
 .rbc-row-segment .rbc-event.rbc-event-end:not(.rbc-event-start) {
-  /* 元のイベントの色に戻す */
-  background-color: var(--rbc-event-bg-color, #3174ad) !important; 
-  color: var(--rbc-event-color, #fff) !important;
-  border: 1px solid var(--rbc-event-border-color, #265985) !important;
-  min-height: 25px; /* 高さを元に戻す */
-  opacity: 1; /* 不透明に戻す */
-  
-  /* 透明にした間の日のテキストが表示されないようにする */
-  overflow: hidden; 
+  /* 何も上書きしないことで、デフォルトのスタイルを維持する */
+  /* このセレクタは優先度を上げるために存在 */
+}
+
+/* 1日で完結するイベントは、上記の影響を受けない */
+.rbc-row-segment .rbc-event.rbc-event-start.rbc-event-end {
+  /* 何も上書きしない */
 }
 
 
 /* --- ダークモード時の調整 --- */
 @media (prefers-color-scheme: dark) {
   /* 期間中の背景色をダークモード用に調整 */
-  .rbc-row-segment .rbc-event:not(.rbc-event-start.rbc-event-end) {
+  .rbc-row-segment .rbc-event.rbc-event-continue {
     background-color: rgba(18, 129, 232, 0.15) !important;
   }
 }
