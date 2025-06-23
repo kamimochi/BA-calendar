@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Calendar, type View, type DateLocalizer } from 'react-big-calendar';
+import { Calendar, type View, type DateLocalizer, type ShowMoreProps } from 'react-big-calendar';
 import { format, parse, startOfWeek, getDay, isSameDay, isWithinInterval } from 'date-fns';
 import { ja } from 'date-fns/locale';
 import { dateFnsLocalizer } from 'react-big-calendar';
@@ -33,7 +33,6 @@ const myEvents: MyEvent[] = (eventsData as EventData[]).map((event) => ({ ...eve
 const locales = { 'ja': ja, };
 const localizer: DateLocalizer = dateFnsLocalizer({ format, parse, startOfWeek: (date: Date) => startOfWeek(date, { weekStartsOn: 0 }), getDay, locales });
 
-
 const modalStyle = {
   position: 'absolute' as const,
   top: '50%',
@@ -50,23 +49,19 @@ function App() {
   const [calendarType, setCalendarType] = useState<'all' | 'game' | 'goods' | 'event'>('all');
   const [selectedEvent, setSelectedEvent] = useState<MyEvent | null>(null);
   const [currentDate, setCurrentDate] = useState(new Date());
-
-  // --- ポップオーバー用のstate ---
+  
   const [popoverAnchorEl, setPopoverAnchorEl] = useState<HTMLElement | null>(null);
   const [popoverEvents, setPopoverEvents] = useState<MyEvent[]>([]);
 
   const theme = useTheme();
   const isPc = useMediaQuery(theme.breakpoints.up('sm'));
 
-  // フィルター処理済みのイベント
   const filteredEvents = useMemo(() => {
     if (calendarType === 'all') {
       return myEvents;
     }
     return myEvents.filter(event => event.category === calendarType);
   }, [calendarType]);
-
-  // --- ハンドラ関数 ---
 
   const handleSelectEvent = (event: MyEvent) => {
     setSelectedEvent(event);
@@ -76,14 +71,10 @@ function App() {
     setSelectedEvent(null);
   };
   
-  // ポップオーバーを閉じる関数
   const handleClosePopover = () => {
     setPopoverAnchorEl(null);
-    // アニメーション中に内容が消えるのを防ぐため、少し遅らせてクリア
     setTimeout(() => setPopoverEvents([]), 300);
   };
-
-  // --- カレンダーのprops設定 ---
 
   const dayPropGetter = (date: Date) => {
     const classNames = [];
@@ -111,27 +102,33 @@ function App() {
     return { className: classNames.join(' ') };
   };
   
-  // カスタムコンポーネントの設定
+  // ★★★ ここを修正 ★★★
   const components = useMemo(() => ({
-    // 「他 X 件」リンクをカスタムボタンに置き換える
-    showMore: (props: { label: string; events: object[] }) => {
+    showMore: (props: ShowMoreProps<MyEvent>) => {
       const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-        setPopoverEvents(props.events as MyEvent[]);
+        // 'react-big-calendar'は隠れたイベントを props.events で渡してくれない仕様のため
+        // その日の全イベントをfilteredEventsから自力で探す
+        const eventsForThisDay = filteredEvents.filter(event =>
+            isWithinInterval(props.date, { start: startOfDay(event.start), end: endOfDay(event.end) })
+        );
+        setPopoverEvents(eventsForThisDay);
         setPopoverAnchorEl(e.currentTarget);
       };
-      // styleを追加して、デフォルトのリンク風の外観を模倣
+      
+      // labelの代わりにtotal（数値）が渡ってくる
+      const label = `他 ${props.total} 件`;
+
       return (
         <button
           type="button"
           onClick={handleClick}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#3174ad' }}
+          style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#3174ad', padding: '0', fontSize: 'inherit' }}
         >
-          {props.label}
+          {label}
         </button>
       );
     },
-  }), []); // 空の依存配列で、コンポーネントの不要な再生成を防ぐ
-
+  }), [filteredEvents]); // filteredEventsが変更されたら再生成する
 
   return (
     <Container maxWidth="lg" sx={{ py: 3 }}>
@@ -140,12 +137,7 @@ function App() {
       </Typography>
       
       <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
-        <ButtonGroup 
-          variant="contained" 
-          aria-label="カレンダー種類選択ボタン"
-          orientation={isPc ? 'horizontal' : 'vertical'}
-          sx={{ '& .Mui-disabled': { backgroundColor: '#333', color: 'white' } }}
-        >
+        <ButtonGroup variant="contained" aria-label="カレンダー種類選択ボタン" orientation={isPc ? 'horizontal' : 'vertical'}>
           <Button onClick={() => setCalendarType('all')} disabled={calendarType === 'all'}>すべて</Button>
           <Button onClick={() => setCalendarType('game')} disabled={calendarType === 'game'}>ゲーム内イベント</Button>
           <Button onClick={() => setCalendarType('goods')} disabled={calendarType === 'goods'}>グッズ情報</Button>
@@ -165,52 +157,30 @@ function App() {
           date={currentDate}
           onNavigate={(newDate) => setCurrentDate(newDate)}
           views={['month'] as View[]}
-          formats={{ monthHeaderFormat: 'yyyy年 M月' }}
-          messages={{
-            next: "次", previous: "前", today: "今日", month: "月", week: "週", day: "日",
-            agenda: "予定", date: "日付", time: "時間", event: "イベント",
-            showMore: (total) => `他 ${total} 件`, 
-          }}
+          messages={{ next: "次", previous: "前", today: "今日" }} // showMoreはcomponentsで上書きするので削除
           onSelectEvent={(event) => handleSelectEvent(event as MyEvent)}
         />
       </Box>
 
-      {/* --- 他X件クリック時に表示されるポップオーバー --- */}
-      <Popover
-        open={Boolean(popoverAnchorEl)}
-        anchorEl={popoverAnchorEl}
-        onClose={handleClosePopover}
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'center',
-        }}
-        transformOrigin={{
-          vertical: 'top',
-          horizontal: 'center',
-        }}
-      >
+      <Popover open={Boolean(popoverAnchorEl)} onClose={handleClosePopover} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }} transformOrigin={{ vertical: 'top', horizontal: 'center' }}>
         <List dense>
           {popoverEvents.map((event) => (
             <ListItem key={event.id} disablePadding>
-              <ListItemButton onClick={() => {
-                handleClosePopover();
-                handleSelectEvent(event);
-              }}>
+              <ListItemButton onClick={() => { handleClosePopover(); handleSelectEvent(event); }}>
                 <ListItemText primary={event.title} />
               </ListItemButton>
             </ListItem>
           ))}
         </List>
       </Popover>
-
-      {/* --- イベントクリック時に表示されるモーダル --- */}
-      <Modal open={!!selectedEvent} onClose={handleCloseModal} aria-labelledby="modal-title" aria-describedby="modal-description">
+      
+      <Modal open={!!selectedEvent} onClose={handleCloseModal}>
         <Box sx={modalStyle}>
           {selectedEvent && (
             <Card>
-              <CardHeader title={selectedEvent.title} id="modal-title" />
+              <CardHeader title={selectedEvent.title} />
               <CardContent>
-                <Typography id="modal-description" component="div">
+                <Typography component="div">
                   <strong>期間:</strong> {format(selectedEvent.start, 'yyyy/MM/dd HH:mm')}
                   {!isSameDay(selectedEvent.start, selectedEvent.end) && ` - ${format(selectedEvent.end, 'yyyy/MM/dd HH:mm')}`}
                 </Typography>
@@ -224,5 +194,6 @@ function App() {
     </Container>
   );
 }
-
+// `react-big-calendar`は`date-fns` v2に完全には対応していないためヘルパー関数が必要
+import { startOfDay, endOfDay } from 'date-fns';
 export default App;
