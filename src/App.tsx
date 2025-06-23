@@ -1,6 +1,8 @@
 import { useState, useMemo } from 'react';
-import { Calendar, type View, type DateLocalizer, type EventPropGetter } from 'react-big-calendar'; 
-import { format, parse, startOfWeek, getDay, isSameDay, isWithinInterval, startOfDay, endOfDay } from 'date-fns';
+// ★修正点1: EventPropGetterの型をreact-big-calendarから直接使うのは複雑なため、一旦型をanyにします
+import { Calendar, type View, type DateLocalizer } from 'react-big-calendar'; 
+// ★修正点2: 未使用の 'startOfDay' と 'endOfDay' を削除
+import { format, parse, startOfWeek, getDay, isSameDay, isWithinInterval } from 'date-fns';
 import { ja } from 'date-fns/locale';
 import { dateFnsLocalizer } from 'react-big-calendar';
 
@@ -73,8 +75,12 @@ function App() {
       !isSameDay(event.start, event.end) && (isSameDay(date, event.start) || isSameDay(date, event.end))
     );
     
+    // isStartOrEnd の判定を isWithinInterval の前に行う
     const isContinue = filteredEvents.some(event =>
-      !isSameDay(event.start, event.end) && !isStartOrEnd && isWithinInterval(date, { start: event.start, end: event.end })
+      !isSameDay(event.start, event.end) && 
+      !isSameDay(date, event.start) && 
+      !isSameDay(date, event.end) && 
+      isWithinInterval(date, { start: event.start, end: event.end })
     );
 
     if (isStartOrEnd) {
@@ -86,7 +92,8 @@ function App() {
     return { className: classNames.join(' ') };
   };
 
-  const eventPropGetter: EventPropGetter<MyEvent> = (event, start, end, isSelected) => {
+  // ★修正点3: 未使用の引数 'isSelected' を削除
+  const eventPropGetter = (event: MyEvent, start: Date, end: Date) => {
     const classNames = [];
     
     const isSingleDay = isSameDay(event.start, event.end);
