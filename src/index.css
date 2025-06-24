@@ -33,7 +33,7 @@ h1 {
   line-height: 1.1;
 }
 
-/* MUIボタンとの競合を避けるため、デフォルトのbuttonスタイルは必要最低限に */
+/* MUIボタンとの競合を避けるための指定 */
 button:not(.MuiButton-root) {
   border-radius: 8px;
   border: 1px solid transparent;
@@ -70,80 +70,66 @@ button:not(.MuiButton-root):focus-visible {
 
 /* --- ここからがアプリ独自のスタイル --- */
 
-/* 「今日」のセルのデフォルト背景色をなくす */
-.rbc-month-view .my-today {
-  background-color: transparent !important;
-}
+/* ★★★★★★★★★★★★★★★★★★★★★★★★★★★★ */
+/* ★★★        今回の修正の核心部分        ★★★ */
+/* ★★★★★★★★★★★★★★★★★★★★★★★★★★★★ */
 
-/* 「今日」の日付の数字（リンク）のスタイル */
-.my-today .rbc-button-link {
+/* すべての日付数字(リンク)の基本スタイル */
+.rbc-date-cell .rbc-button-link {
   width: 30px;
   height: 30px;
-  border-radius: 50%;
-  border: 2px solid #1281e8; 
-  background-color: transparent !important;
-  color: var(--color-text, #213547);
-  font-weight: bold;
+  border-radius: 50%; /* 正円にする */
   display: inline-flex;
   justify-content: center;
   align-items: center;
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+}
+
+/* 「今日」の日付のスタイル */
+.my-today .rbc-button-link {
+  background-color: #1281e8 !important; /* 背景色を塗る */
+  color: white !important; /* 文字色を白に */
+  font-weight: bold;
 }
 
 /* 日付が選択された時のスタイル */
 .rbc-button-link.rbc-active {
-  background-color: #1281e8 !important;
+  background-color: #555 !important;
   color: white !important;
-  border-radius: 50%;
-  border-color: transparent;
-  width: 30px;
-  height: 30px;
-  display: inline-flex;
-  justify-content: center;
-  align-items: center;
 }
 
-/* イベントがある日の背景色 */
+/* イベントがある日の「背景」のスタイル */
 .rbc-day-bg.has-event:not(.rbc-off-range-bg) {
   background-color: #eaf6ff;
 }
 
-/* ★★★ 今回の修正箇所(1) ★★★ */
 /* 長期間イベントの「間の日」の不透明度を下げる */
 .rbc-event.rbc-event-continue {
-  opacity: 0.5;
+  opacity: 0.6;
 }
-/* ホバーした時は元に戻して操作しやすくする */
 .rbc-event.rbc-event-continue:hover {
   opacity: 1;
 }
 
-/* ★★★ 今回の修正箇所(2) ★★★ */
 /* 「他x件」リンクのスタイル */
 .rbc-show-more {
-  color: #3174ad; /* ライトモード時の色 */
+  color: #a0cff7; /* ライトモードでもダークモードでも見やすい色に */
   text-decoration: none;
-  background: rgba(0, 0, 0, 0.1);
+  background: none; /* 背景をなくす */
   padding: 1px 5px;
-  border-radius: 5px;
 }
 .rbc-show-more:hover {
-  color: #265985;
+  text-decoration: underline;
 }
-
 
 /* --- ダークモード時のスタイル --- */
 @media (prefers-color-scheme: dark) {
-  /* ダークモード時の「今日」の文字色 */
-  .my-today .rbc-button-link {
-    color: var(--color-text-dark, rgba(255, 255, 255, 0.87));
-  }
-  
-  /* ダークモード時のイベント背景色 */
+  /* イベントがある日の背景色 */
   .rbc-day-bg.has-event:not(.rbc-off-range-bg) {
     background-color: rgba(18, 129, 232, 0.15); 
   }
 
-  /* ダークモード時のカレンダーツールバーの文字色 */
+  /* カレンダーツールバーの文字色 */
   .rbc-toolbar .rbc-toolbar-label,
   .rbc-toolbar button {
     color: rgba(255, 255, 255, 0.87);
@@ -152,28 +138,22 @@ button:not(.MuiButton-root):focus-visible {
     color: rgba(255, 255, 255, 0.5);
   }
 
-  /* ダークモード時の前月・次月の日付の「背景色」を修正 */
+  /* 前月・次月の日付の「背景色」 */
   .rbc-off-range-bg {
     background-color: transparent !important;
   }
-  
-  /* ★★★ 今回の修正箇所(3) ★★★ */
-  /* ダークモード時の「他x件」の文字色 */
-  .rbc-show-more {
-    color: #a0cff7 !important; /* 白に近い青色で見やすく */
-    background: rgba(255, 255, 255, 0.1);
+
+  /* 前月・次月の日付の「文字色」 */
+  .rbc-off-range .rbc-button-link {
+    color: rgba(255, 255, 255, 0.4) !important;
   }
 }
 
 /* --- スマホ表示用のスタイル調整 --- */
 @media (max-width: 600px) {
-  .rbc-month-view .rbc-day-bg .rbc-button-link {
-    font-size: 0.8rem;
-  }
-  
-  .my-today .rbc-button-link,
-  .rbc-button-link.rbc-active {
+  .rbc-date-cell .rbc-button-link {
     width: 26px;
     height: 26px;
+    font-size: 0.8rem;
   }
 }
