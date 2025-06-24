@@ -3,6 +3,8 @@
   line-height: 1.5;
   font-weight: 400;
 
+  /* ライトモード時のデフォルト色 */
+  --color-text: #213547;
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
   background-color: #242424;
@@ -24,10 +26,6 @@ a:hover {
 
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
 }
 
 h1 {
@@ -35,7 +33,8 @@ h1 {
   line-height: 1.1;
 }
 
-button {
+/* MUIボタンとの競合を避けるための指定 */
+button:not(.MuiButton-root) {
   border-radius: 8px;
   border: 1px solid transparent;
   padding: 0.6em 1.2em;
@@ -46,56 +45,50 @@ button {
   cursor: pointer;
   transition: border-color 0.25s;
 }
-button:hover {
+button:not(.MuiButton-root):hover {
   border-color: #646cff;
 }
-button:focus,
-button:focus-visible {
+button:not(.MuiButton-root):focus,
+button:not(.MuiButton-root):focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 
 @media (prefers-color-scheme: light) {
   :root {
+    /* ダークモード時のデフォルト色 */
+    --color-text-dark: rgba(255, 255, 255, 0.87);
     color: #213547;
     background-color: #ffffff;
   }
   a:hover {
     color: #747bff;
   }
-  button {
+  button:not(.MuiButton-root) {
     background-color: #f9f9f9;
   }
 }
 
 /* --- ここからがアプリ独自のスタイル --- */
 
-/* 日付セルの親要素をFlexbox化し、中央揃えの基準にする */
-.rbc-date-cell {
-  display: flex;
-  justify-content: center; /* 水平中央 */
-  padding-top: 5px; /* 上部に少し余白 */
-}
+/* ★★★★★★★★★★★★★★★★★★★★★★★★★★★★ */
+/* ★★★        今回の修正の核心部分        ★★★ */
+/* ★★★★★★★★★★★★★★★★★★★★★★★★★★★★ */
 
-/* 日付数字(円)の基本スタイル */
+/* すべての日付数字(リンク)の基本スタイル */
 .rbc-date-cell .rbc-button-link {
-  width: 32px;  /* 固定幅を指定 */
-  height: 32px; /* 固定高さを指定 */
-  border-radius: 50%; /* 正円 */
-  display: flex;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%; /* 正円にする */
+  display: inline-flex;
   justify-content: center;
   align-items: center;
-  transition: background-color 0.2s, color 0.2s;
-  color: inherit; /* 親要素の色を継承 */
-  text-decoration: none;
-}
-.rbc-date-cell .rbc-button-link:hover {
-  color: inherit; /* ホバー時も色を維持 */
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s;
 }
 
 /* 「今日」の日付のスタイル */
 .my-today .rbc-button-link {
-  background-color: #1281e8 !important; 
-  color: white !important; 
+  background-color: #1281e8 !important; /* 背景色を塗る */
+  color: white !important; /* 文字色を白に */
   font-weight: bold;
 }
 
@@ -105,29 +98,25 @@ button:focus-visible {
   color: white !important;
 }
 
-/* ★App.tsxからクラスを付与するように変更したため、このルールは不要になりました。
-   dayPropGetterで`.is-continue-day`を付与し、それに対してスタイルを当てます。
-   ですが、現在のApp.tsxはコンポーネントでopacityを制御しているため、
-   このCSSは安全のためにコメントアウト、または削除しても構いません。
-   今回は残しておきます。
-*/
-/*
-.is-continue-day .rbc-event {
+/* イベントがある日の「背景」のスタイル */
+.rbc-day-bg.has-event:not(.rbc-off-range-bg) {
+  background-color: #eaf6ff;
+}
+
+/* 長期間イベントの「間の日」の不透明度を下げる */
+.rbc-event.rbc-event-continue {
   opacity: 0.6;
 }
-.is-continue-day .rbc-event:hover {
+.rbc-event.rbc-event-continue:hover {
   opacity: 1;
 }
-*/
-
 
 /* 「他x件」リンクのスタイル */
 .rbc-show-more {
-  color: #a0cff7; 
+  color: #a0cff7; /* ライトモードでもダークモードでも見やすい色に */
   text-decoration: none;
-  background: none; 
+  background: none; /* 背景をなくす */
   padding: 1px 5px;
-  font-size: 0.8em;
 }
 .rbc-show-more:hover {
   text-decoration: underline;
@@ -139,20 +128,22 @@ button:focus-visible {
   .rbc-day-bg.has-event:not(.rbc-off-range-bg) {
     background-color: rgba(18, 129, 232, 0.15); 
   }
-  
+
   /* カレンダーツールバーの文字色 */
-  .rbc-toolbar .rbc-toolbar-label, .rbc-toolbar button {
+  .rbc-toolbar .rbc-toolbar-label,
+  .rbc-toolbar button {
     color: rgba(255, 255, 255, 0.87);
   }
   .rbc-toolbar button:disabled {
     color: rgba(255, 255, 255, 0.5);
   }
-  
-  /* 前月・次月の日付の背景色 */
+
+  /* 前月・次月の日付の「背景色」 */
   .rbc-off-range-bg {
     background-color: transparent !important;
   }
-  /* 前月・次月の日付の文字色 */
+
+  /* 前月・次月の日付の「文字色」 */
   .rbc-off-range .rbc-button-link {
     color: rgba(255, 255, 255, 0.4) !important;
   }
@@ -161,8 +152,8 @@ button:focus-visible {
 /* --- スマホ表示用のスタイル調整 --- */
 @media (max-width: 600px) {
   .rbc-date-cell .rbc-button-link {
-    width: 28px;
-    height: 28px;
+    width: 26px;
+    height: 26px;
     font-size: 0.8rem;
   }
 }
