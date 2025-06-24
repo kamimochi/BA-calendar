@@ -1,34 +1,50 @@
 import { useState, useMemo } from 'react';
-import { Calendar, type View, type DateLocalizer } from 'react-big-calendar';
+import { Calendar, type View, type DateLocalizer } from 'react-big-calendar'; 
 import { format, parse, startOfWeek, getDay, isSameDay, isWithinInterval, startOfDay, endOfDay } from 'date-fns';
 import { ja } from 'date-fns/locale';
 import { dateFnsLocalizer } from 'react-big-calendar';
 
 import 'react-big-calendar/lib/css/react-big-calendar.css';
-import {
-  Container,
-  Button,
-  ButtonGroup,
-  Modal,
-  Typography,
-  Card,
-  CardContent,
-  CardHeader,
-  Box,
-  useTheme,
-  useMediaQuery,
+import { 
+  Container, Button, ButtonGroup, Modal, Typography, Card, CardContent, CardHeader, Box,
+  useTheme, useMediaQuery,
 } from '@mui/material';
 
 import eventsData from "./data/events.json";
 
-// --- 型定義 ---
+// 型定義
 type EventData = { id: number; title: string; start: string; end?: string; category: 'game' | 'goods' | 'event'; description?: string; url?: string; urlText?: string; };
 interface MyEvent { id: number; title: string; start: Date; end: Date; category: 'game' | 'goods' | 'event'; description?: string; url?: string; urlText?: string; }
-
-// --- 初期データ設定 ---
 const myEvents: MyEvent[] = (eventsData as EventData[]).map((event) => ({ ...event, start: new Date(event.start), end: new Date(event.end || event.start), category: event.category as 'game' | 'goods' | 'event' }));
 const locales = { 'ja': ja, };
 const localizer: DateLocalizer = dateFnsLocalizer({ format, parse, startOfWeek: (date: Date) => startOfWeek(date, { weekStartsOn: 0 }), getDay, locales });
+
+// ★★★ カスタムイベントラッパーコンポーネント (再挑戦・最終版) ★★★
+const MyEventWrapper = (props: any) => {
+  const { children, style, continuesPrior, continuesAfter } = props;
+
+  const newStyle = useMemo(() => {
+    // 複数日にまたがるイベントの「中間日」か判定
+    const isContinue = continuesPrior && continuesAfter;
+    
+    if (isContinue) {
+      // 中間日のスタイル
+      return {
+        ...style, // 元の位置・幅スタイルは維持
+        opacity: 0.6, // 不透明度を0.6に設定
+      };
+    }
+    // 開始日、終了日、1日イベントは渡されたスタイルをそのまま使う
+    return style;
+  }, [style, continuesPrior, continuesAfter]);
+
+  // 新しいスタイルを適用したdivで、イベント本体(children)をラップして返す
+  return (
+    <div style={newStyle}>
+      {children}
+    </div>
+  );
+};
 
 const modalStyle = {
   position: 'absolute' as const,
@@ -43,16 +59,13 @@ const modalStyle = {
 };
 
 function App() {
-  // --- state定義 ---
   const [calendarType, setCalendarType] = useState<'all' | 'game' | 'goods' | 'event'>('all');
   const [selectedEvent, setSelectedEvent] = useState<MyEvent | null>(null);
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [currentView, setCurrentView] = useState<View>('month');
 
   const theme = useTheme();
   const isPc = useMediaQuery(theme.breakpoints.up('sm'));
 
-  // フィルター処理済みのイベント
   const filteredEvents = useMemo(() => {
     if (calendarType === 'all') {
       return myEvents;
@@ -60,7 +73,6 @@ function App() {
     return myEvents.filter(event => event.category === calendarType);
   }, [calendarType]);
 
-  // --- ハンドラ関数 ---
   const handleSelectEvent = (event: MyEvent) => {
     setSelectedEvent(event);
   };
@@ -69,24 +81,18 @@ function App() {
     setSelectedEvent(null);
   };
 
-  const handleShowMore = (date: Date) => {
-    setCurrentView('day');
-    setCurrentDate(date);
-  };
-
   const dayPropGetter = (date: Date) => {
     const classNames = [];
     if (isSameDay(date, new Date())) {
       classNames.push('my-today');
     }
-    const isStartOrEnd = filteredEvents.some(event => !isSameDay(event.start, event.end) && (isSameDay(date, event.start) || isSameDay(date, event.end)));
-    const isContinue = filteredEvents.some(event => !isSameDay(event.start, event.end) && !isSameDay(date, event.start) && !isSameDay(date, event.end) && isWithinInterval(date, { start: startOfDay(event.start), end: endOfDay(event.end) }));
-    if (isStartOrEnd) {
-      classNames.push('is-start-or-end-day');
-    } else if (isContinue) {
-      classNames.push('is-continue-day');
+    const hasEvent = filteredEvents.some(event => 
+      isWithinInterval(date, { start: startOfDay(event.start), end: endOfDay(event.end) })
+    );
+    if (hasEvent) {
+      classNames.push('has-event');
     }
-    return { className: classNames.join(' ') };
+    return classNames.length > 0 ? { className: classNames.join(' ') } : {};
   };
 
   return (
@@ -96,7 +102,12 @@ function App() {
       </Typography>
       
       <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
-        <ButtonGroup variant="contained" aria-label="カレンダー種類選択ボタン" orientation={isPc ? 'horizontal' : 'vertical'}>
+        <ButtonGroup 
+          variant="contained" 
+          aria-label="カレンダー種類選択ボタン"
+          orientation={isPc ? 'horizontal' : 'vertical'}
+          sx={{ '& .Mui-disabled': { backgroundColor: '#333', color: 'white' } }}
+        >
           <Button onClick={() => setCalendarType('all')} disabled={calendarType === 'all'}>すべて</Button>
           <Button onClick={() => setCalendarType('game')} disabled={calendarType === 'game'}>ゲーム内イベント</Button>
           <Button onClick={() => setCalendarType('goods')} disabled={calendarType === 'goods'}>グッズ情報</Button>
@@ -107,33 +118,35 @@ function App() {
       <Box sx={{ height: { xs: '70vh', md: '80vh' } }}>
         <Calendar
           localizer={localizer}
-          events={filteredEvents}
+          events={myEvents}
           startAccessor="start"
           endAccessor="end"
           style={{ height: '100%' }}
           dayPropGetter={dayPropGetter}
-          
-          view={currentView}
-          onView={(view) => setCurrentView(view)}
           date={currentDate}
           onNavigate={(newDate) => setCurrentDate(newDate)}
-          
-          // ★★★★★ 未使用の引数`events`を `_events` に修正 ★★★★★
-          onShowMore={(_events, date) => handleShowMore(date)}
-          
+          views={['month'] as View[]}
+          formats={{ monthHeaderFormat: 'yyyy年 M月' }}
+          messages={{
+            next: "次", previous: "前", today: "今日", month: "月", week: "週", day: "日",
+            agenda: "予定", date: "日付", time: "時間", event: "イベント",
+            showMore: (total) => `他 ${total} 件`, 
+          }}
           onSelectEvent={(event) => handleSelectEvent(event as MyEvent)}
-          
-          messages={{ next: "次", previous: "前", today: "今日", month: "月", week: "週", day: "日", showMore: (total) => `他 ${total} 件` }}
+          // ★★★ カスタムコンポーネントを適用 ★★★
+          components={{
+            eventWrapper: MyEventWrapper
+          }}
         />
       </Box>
       
-      <Modal open={!!selectedEvent} onClose={handleCloseModal}>
+      <Modal open={!!selectedEvent} onClose={handleCloseModal} aria-labelledby="modal-title" aria-describedby="modal-description">
         <Box sx={modalStyle}>
           {selectedEvent && (
             <Card>
-              <CardHeader title={selectedEvent.title} />
+              <CardHeader title={selectedEvent.title} id="modal-title" />
               <CardContent>
-                <Typography component="div">
+                <Typography id="modal-description" component="div">
                   <strong>期間:</strong> {format(selectedEvent.start, 'yyyy/MM/dd HH:mm')}
                   {!isSameDay(selectedEvent.start, selectedEvent.end) && ` - ${format(selectedEvent.end, 'yyyy/MM/dd HH:mm')}`}
                 </Typography>
