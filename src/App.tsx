@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Calendar, type DateLocalizer } from 'react-big-calendar';
+import { Calendar, type View, type DateLocalizer } from 'react-big-calendar';
 import { format, parse, startOfWeek, getDay, isSameDay, isWithinInterval, startOfDay, endOfDay } from 'date-fns';
 import { ja } from 'date-fns/locale';
 import { dateFnsLocalizer } from 'react-big-calendar';
@@ -47,8 +47,7 @@ function App() {
   const [calendarType, setCalendarType] = useState<'all' | 'game' | 'goods' | 'event'>('all');
   const [selectedEvent, setSelectedEvent] = useState<MyEvent | null>(null);
   const [currentDate, setCurrentDate] = useState(new Date());
-  // 月表示に固定するため、viewのstateは削除し、直接指定します
-  // const [currentView, setCurrentView] = useState<View>('month');
+  const [currentView, setCurrentView] = useState<View>('month');
 
   const theme = useTheme();
   const isPc = useMediaQuery(theme.breakpoints.up('sm'));
@@ -69,35 +68,25 @@ function App() {
   const handleCloseModal = () => {
     setSelectedEvent(null);
   };
-  
-  // onShowMoreは今回、CSSとdayPropGetterで見た目を制御するため、
-  // クリックでビューを切り替える機能は一旦コメントアウトします。
-  /*
+
   const handleShowMore = (date: Date) => {
     setCurrentView('day');
     setCurrentDate(date);
   };
-  */
 
-  // ★★★ dayPropGetterのロジックをよりシンプルで確実なものに修正 ★★★
   const dayPropGetter = (date: Date) => {
     const classNames = [];
     if (isSameDay(date, new Date())) {
       classNames.push('my-today');
     }
-
-    // この日に長期間イベントが継続しているかを判定
-    const isContinue = filteredEvents.some(event => {
-      const isLongEvent = !isSameDay(event.start, event.end);
-      const isMiddleDay = !isSameDay(date, event.start) && !isSameDay(date, event.end);
-      return isLongEvent && isMiddleDay && isWithinInterval(date, { start: startOfDay(event.start), end: endOfDay(event.end) });
-    });
-    
-    if (isContinue) {
+    const isStartOrEnd = filteredEvents.some(event => !isSameDay(event.start, event.end) && (isSameDay(date, event.start) || isSameDay(date, event.end)));
+    const isContinue = filteredEvents.some(event => !isSameDay(event.start, event.end) && !isSameDay(date, event.start) && !isSameDay(date, event.end) && isWithinInterval(date, { start: startOfDay(event.start), end: endOfDay(event.end) }));
+    if (isStartOrEnd) {
+      classNames.push('is-start-or-end-day');
+    } else if (isContinue) {
       classNames.push('is-continue-day');
     }
-    
-    return classNames.length > 0 ? { className: classNames.join(' ') } : {};
+    return { className: classNames.join(' ') };
   };
 
   return (
@@ -124,13 +113,17 @@ function App() {
           style={{ height: '100%' }}
           dayPropGetter={dayPropGetter}
           
+          view={currentView}
+          onView={(view) => setCurrentView(view)}
           date={currentDate}
           onNavigate={(newDate) => setCurrentDate(newDate)}
-          // viewsを固定し、onViewを削除
-          views={['month']} 
-          view={'month'}
-                    
-          // onShowMore={(_events, date) => handleShowMore(date)}
+          
+          // ★★★★★ この行を以下のコードに置き換えてください ★★★★★
+          onShowMore={(events, date) => {
+            if (events.length === 0) { /* この行は未使用変数のエラーを回避するためだけのもので、実質何もしません */ }
+            handleShowMore(date);
+          }}
+          
           onSelectEvent={(event) => handleSelectEvent(event as MyEvent)}
           
           messages={{ next: "次", previous: "前", today: "今日", month: "月", week: "週", day: "日", showMore: (total) => `他 ${total} 件` }}
