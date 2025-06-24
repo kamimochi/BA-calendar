@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Calendar, type View, type DateLocalizer } from 'react-big-calendar';
+import { Calendar, type View, type DateLocalizer, type Formats } from 'react-big-calendar';
 import { format, parse, startOfWeek, getDay, isSameDay, isWithinInterval, startOfDay, endOfDay } from 'date-fns';
 import { ja } from 'date-fns/locale';
 import { dateFnsLocalizer } from 'react-big-calendar';
@@ -30,6 +30,29 @@ const myEvents: MyEvent[] = (eventsData as EventData[]).map((event) => ({ ...eve
 const locales = { 'ja': ja, };
 const localizer: DateLocalizer = dateFnsLocalizer({ format, parse, startOfWeek: (date: Date) => startOfWeek(date, { weekStartsOn: 0 }), getDay, locales });
 
+// --- 日本語化対応 ---
+const messages = {
+  next: "次",
+  previous: "前",
+  today: "今日",
+  month: "月",
+  week: "週",
+  day: "日",
+  agenda: "一覧",
+  allDay: "一日中",
+  showMore: (total: number) => `他 ${total} 件`,
+};
+
+const formats: Formats = {
+  monthHeaderFormat: 'yyyy年M月',
+  dayHeaderFormat: 'M月d日(E)',
+  weekdayFormat: 'E',
+  agendaDateFormat: 'M月d日(E)',
+  agendaHeaderFormat: ({ start, end }, culture, localizer) =>
+    localizer!.format(start, 'M月d日(E)', culture) + ' - ' + localizer!.format(end, 'M月d日(E)', culture),
+  timeGutterFormat: 'p h:mm',
+};
+
 const modalStyle = {
   position: 'absolute' as const,
   top: '50%',
@@ -43,7 +66,6 @@ const modalStyle = {
 };
 
 function App() {
-  // --- state定義 ---
   const [calendarType, setCalendarType] = useState<'all' | 'game' | 'goods' | 'event'>('all');
   const [selectedEvent, setSelectedEvent] = useState<MyEvent | null>(null);
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -52,7 +74,6 @@ function App() {
   const theme = useTheme();
   const isPc = useMediaQuery(theme.breakpoints.up('sm'));
 
-  // フィルター処理済みのイベント
   const filteredEvents = useMemo(() => {
     if (calendarType === 'all') {
       return myEvents;
@@ -60,7 +81,6 @@ function App() {
     return myEvents.filter(event => event.category === calendarType);
   }, [calendarType]);
 
-  // --- ハンドラ関数 ---
   const handleSelectEvent = (event: MyEvent) => {
     setSelectedEvent(event);
   };
@@ -112,18 +132,15 @@ function App() {
           endAccessor="end"
           style={{ height: '100%' }}
           dayPropGetter={dayPropGetter}
-          
           view={currentView}
           onView={(view) => setCurrentView(view)}
           date={currentDate}
           onNavigate={(newDate) => setCurrentDate(newDate)}
-          
-          // ★★★★★ 未使用の引数`events`を `_events` に修正 ★★★★★
           onShowMore={(_events, date) => handleShowMore(date)}
-          
           onSelectEvent={(event) => handleSelectEvent(event as MyEvent)}
-          
-          messages={{ next: "次", previous: "前", today: "今日", month: "月", week: "週", day: "日", showMore: (total) => `他 ${total} 件` }}
+          messages={messages}
+          formats={formats}
+          culture='ja'
         />
       </Box>
       
@@ -134,8 +151,12 @@ function App() {
               <CardHeader title={selectedEvent.title} />
               <CardContent>
                 <Typography component="div">
-                  <strong>期間:</strong> {format(selectedEvent.start, 'yyyy/MM/dd HH:mm')}
-                  {!isSameDay(selectedEvent.start, selectedEvent.end) && ` - ${format(selectedEvent.end, 'yyyy/MM/dd HH:mm')}`}
+                  <strong>期間:</strong> {format(selectedEvent.start, 'yyyy年M月d日(E) HH:mm', { locale: ja })}
+                  {selectedEvent.start.getTime() !== selectedEvent.end.getTime() && 
+                    (isSameDay(selectedEvent.start, selectedEvent.end)
+                      ? `-${format(selectedEvent.end, 'HH:mm')}`
+                      : ` - ${format(selectedEvent.end, 'yyyy年M月d日(E) HH:mm', { locale: ja })}`)
+                  }
                 </Typography>
                 {selectedEvent.description && ( <Typography sx={{ mt: 2 }}> <strong>詳細:</strong> {selectedEvent.description} </Typography> )}
                 {selectedEvent.url && selectedEvent.urlText && ( <Typography sx={{ mt: 2 }}> <strong>リンク:</strong>{' '} <a href={selectedEvent.url} target="_blank" rel="noopener noreferrer"> {selectedEvent.urlText} </a> </Typography> )}
