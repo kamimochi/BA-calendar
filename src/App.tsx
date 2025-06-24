@@ -50,7 +50,9 @@ const formats: Formats = {
   agendaDateFormat: 'M月d日(E)',
   agendaHeaderFormat: ({ start, end }, culture, localizer) =>
     localizer!.format(start, 'M月d日(E)', culture) + ' - ' + localizer!.format(end, 'M月d日(E)', culture),
-  timeGutterFormat: 'p h:mm',
+  // ★★★★★ 修正点 ★★★★★
+  // 'p h:mm' から半角スペースを削除し、'ph:mm' に修正
+  timeGutterFormat: 'ph:mm',
 };
 
 const modalStyle = {
