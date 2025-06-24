@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Calendar, type View, type DateLocalizer } from 'react-big-calendar';
+import { Calendar, type DateLocalizer } from 'react-big-calendar';
 import { format, parse, startOfWeek, getDay, isSameDay, isWithinInterval, startOfDay, endOfDay } from 'date-fns';
 import { ja } from 'date-fns/locale';
 import { dateFnsLocalizer } from 'react-big-calendar';
