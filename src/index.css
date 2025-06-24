@@ -70,26 +70,44 @@ button:not(.MuiButton-root):focus-visible {
 
 /* --- ここからがアプリ独自のスタイル --- */
 
-/* ★★★★★★★★★★★★★★★★★★★★★★★★★★★★ */
-/* ★★★        今回の修正の核心部分        ★★★ */
-/* ★★★★★★★★★★★★★★★★★★★★★★★★★★★★ */
-
-/* すべての日付数字(リンク)の基本スタイル */
+/* 日付の数字を囲む要素の基本設定 */
 .rbc-date-cell .rbc-button-link {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%; /* 正円にする */
-  display: inline-flex;
+  display: flex; /* flexboxで中央揃え */
   justify-content: center;
   align-items: center;
+  
+  /* 正方形を維持するための設定 */
+  width: 60%; /* 親要素に対する幅 */
+  padding-top: 60%; /* 幅と同じ値を指定して高さを確保 */
+  height: 0; /* heightは0にしてpaddingで高さを制御 */
+  position: relative; /* 子要素を配置する基準点 */
+
+  border-radius: 50%; /* 正円にする */
   transition: background-color 0.2s, color 0.2s, border-color 0.2s;
 }
+
+/* 正方形の中に実際の数字を配置 */
+.rbc-date-cell .rbc-button-link::after {
+  content: attr(aria-label); /* 日付の数字を取得 */
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 
 /* 「今日」の日付のスタイル */
 .my-today .rbc-button-link {
   background-color: #1281e8 !important; /* 背景色を塗る */
-  color: white !important; /* 文字色を白に */
+  color: white !important; /* 元の数字の色を上書き */
   font-weight: bold;
+}
+.my-today .rbc-button-link::after {
+  color: white !important; /* 擬似要素の数字の色も白に */
 }
 
 /* 日付が選択された時のスタイル */
@@ -97,25 +115,20 @@ button:not(.MuiButton-root):focus-visible {
   background-color: #555 !important;
   color: white !important;
 }
+.rbc-button-link.rbc-active::after {
+  color: white !important;
+}
 
-/* イベントがある日の「背景」のスタイル */
+
+/* --- その他のスタイル --- */
 .rbc-day-bg.has-event:not(.rbc-off-range-bg) {
   background-color: #eaf6ff;
 }
 
-/* 長期間イベントの「間の日」の不透明度を下げる */
-.rbc-event.rbc-event-continue {
-  opacity: 0.6;
-}
-.rbc-event.rbc-event-continue:hover {
-  opacity: 1;
-}
-
-/* 「他x件」リンクのスタイル */
 .rbc-show-more {
-  color: #a0cff7; /* ライトモードでもダークモードでも見やすい色に */
+  color: #a0cff7; 
   text-decoration: none;
-  background: none; /* 背景をなくす */
+  background: none; 
   padding: 1px 5px;
 }
 .rbc-show-more:hover {
@@ -124,26 +137,18 @@ button:not(.MuiButton-root):focus-visible {
 
 /* --- ダークモード時のスタイル --- */
 @media (prefers-color-scheme: dark) {
-  /* イベントがある日の背景色 */
   .rbc-day-bg.has-event:not(.rbc-off-range-bg) {
     background-color: rgba(18, 129, 232, 0.15); 
   }
-
-  /* カレンダーツールバーの文字色 */
-  .rbc-toolbar .rbc-toolbar-label,
-  .rbc-toolbar button {
+  .rbc-toolbar .rbc-toolbar-label, .rbc-toolbar button {
     color: rgba(255, 255, 255, 0.87);
   }
   .rbc-toolbar button:disabled {
     color: rgba(255, 255, 255, 0.5);
   }
-
-  /* 前月・次月の日付の「背景色」 */
   .rbc-off-range-bg {
     background-color: transparent !important;
   }
-
-  /* 前月・次月の日付の「文字色」 */
   .rbc-off-range .rbc-button-link {
     color: rgba(255, 255, 255, 0.4) !important;
   }
@@ -151,9 +156,14 @@ button:not(.MuiButton-root):focus-visible {
 
 /* --- スマホ表示用のスタイル調整 --- */
 @media (max-width: 600px) {
+  /* スマホでは固定サイズの方が綺麗に見えることが多いので調整 */
   .rbc-date-cell .rbc-button-link {
-    width: 26px;
-    height: 26px;
+    width: 28px;
+    height: 28px;
+    padding-top: 0;
     font-size: 0.8rem;
+  }
+  .rbc-date-cell .rbc-button-link::after {
+    display: none; /* スマホでは不要 */
   }
 }
