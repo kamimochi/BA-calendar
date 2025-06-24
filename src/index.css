@@ -33,7 +33,8 @@ h1 {
   line-height: 1.1;
 }
 
-button {
+/* MUIボタンとの競合を避けるため、デフォルトのbuttonスタイルは必要最低限に */
+button:not(.MuiButton-root) {
   border-radius: 8px;
   border: 1px solid transparent;
   padding: 0.6em 1.2em;
@@ -44,11 +45,11 @@ button {
   cursor: pointer;
   transition: border-color 0.25s;
 }
-button:hover {
+button:not(.MuiButton-root):hover {
   border-color: #646cff;
 }
-button:focus,
-button:focus-visible {
+button:not(.MuiButton-root):focus,
+button:not(.MuiButton-root):focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 
@@ -62,7 +63,7 @@ button:focus-visible {
   a:hover {
     color: #747bff;
   }
-  button {
+  button:not(.MuiButton-root) {
     background-color: #f9f9f9;
   }
 }
@@ -101,13 +102,32 @@ button:focus-visible {
   align-items: center;
 }
 
-/* 長期間イベントの「間の日」(continue)に適用 */
-.rbc-event.rbc-event-continue {
-  background-color: #eaf6ff !important;
-  border-color: #eaf6ff !important;
+/* イベントがある日の背景色 */
+.rbc-day-bg.has-event:not(.rbc-off-range-bg) {
+  background-color: #eaf6ff;
 }
-.rbc-event.rbc-event-continue .rbc-event-content {
-  color: transparent !important;
+
+/* ★★★ 今回の修正箇所(1) ★★★ */
+/* 長期間イベントの「間の日」の不透明度を下げる */
+.rbc-event.rbc-event-continue {
+  opacity: 0.5;
+}
+/* ホバーした時は元に戻して操作しやすくする */
+.rbc-event.rbc-event-continue:hover {
+  opacity: 1;
+}
+
+/* ★★★ 今回の修正箇所(2) ★★★ */
+/* 「他x件」リンクのスタイル */
+.rbc-show-more {
+  color: #3174ad; /* ライトモード時の色 */
+  text-decoration: none;
+  background: rgba(0, 0, 0, 0.1);
+  padding: 1px 5px;
+  border-radius: 5px;
+}
+.rbc-show-more:hover {
+  color: #265985;
 }
 
 
@@ -132,16 +152,16 @@ button:focus-visible {
     color: rgba(255, 255, 255, 0.5);
   }
 
-  /* ダークモード時の長期間イベント中間日 */
-  .rbc-event.rbc-event-continue {
-    background-color: rgba(18, 129, 232, 0.15) !important;
-    border-color: rgba(18, 129, 232, 0.15) !important;
-  }
-
-  /* ★★★ 今回の修正箇所 ★★★ */
   /* ダークモード時の前月・次月の日付の「背景色」を修正 */
   .rbc-off-range-bg {
     background-color: transparent !important;
+  }
+  
+  /* ★★★ 今回の修正箇所(3) ★★★ */
+  /* ダークモード時の「他x件」の文字色 */
+  .rbc-show-more {
+    color: #a0cff7 !important; /* 白に近い青色で見やすく */
+    background: rgba(255, 255, 255, 0.1);
   }
 }
 
