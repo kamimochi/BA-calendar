@@ -6,8 +6,8 @@
   /* ライトモード時のデフォルト色 */
   --color-text: #213547;
   color-scheme: light dark;
-  color: rgba(234, 246, 255, 1);
-  background-color: #242424;
+  color: #213547; /* 文字色をダークグレーに設定（--color-textと同じ値） [1] */
+  background-color: #ffffff; /* 背景色を白に設定 */
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
