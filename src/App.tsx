@@ -1,6 +1,5 @@
 import { useState, useMemo } from 'react';
 import { Calendar, type View, type DateLocalizer, type Formats } from 'react-big-calendar';
-// ★★★ endOfDay をインポートに追加 ★★★
 import { format, parse, startOfWeek, getDay, isSameDay, isWithinInterval, startOfDay, endOfDay } from 'date-fns';
 import { ja } from 'date-fns/locale';
 import { dateFnsLocalizer } from 'react-big-calendar';
@@ -27,16 +26,13 @@ type EventData = { id: number; title: string; start: string; end?: string; categ
 interface MyEvent { id: number; title: string; start: Date; end: Date; category: 'game' | 'goods' | 'event'; description?: string; url?: string; urlText?: string; }
 
 // --- 初期データ設定 ---
-// ★★★★★ 修正点：複数日イベントが正しく認識されるように、終了日を「その日の終わり」に設定 ★★★★★
 const myEvents: MyEvent[] = (eventsData as EventData[]).map((event) => {
   const start = new Date(event.start);
-  // 終了日が指定されていればその日の終わりに、なければ開始日と同じにする
   const end = event.end ? endOfDay(new Date(event.end)) : start;
   return { ...event, start, end, category: event.category as 'game' | 'goods' | 'event' };
 });
 
 const locales = { 'ja': ja, };
-// ★★★★★ この行が抜けていたことがエラーの原因でした ★★★★★
 const localizer: DateLocalizer = dateFnsLocalizer({ format, parse, startOfWeek: (date: Date) => startOfWeek(date, { weekStartsOn: 0 }), getDay, locales });
 
 // --- 日本語化対応 ---
@@ -118,6 +114,29 @@ function App() {
     return { className: classNames.join(' ') };
   };
 
+  // ★★★ 手動でクラスを付与するロジック ★★★
+  const eventPropGetter = (event: MyEvent, start: Date, end: Date, isSelected: boolean) => {
+    const classNames = [];
+    const isMultiDay = !isSameDay(event.start, event.end);
+    if (isMultiDay) {
+      // このバーの断片が「イベント全体の開始日」と一致するか
+      if (isSameDay(start, event.start)) {
+        classNames.push('my-event-start');
+      } 
+      // このバーの断片が「イベント全体の終了日」と一致するか
+      else if (isSameDay(end, event.end)) {
+        classNames.push('my-event-end');
+      } 
+      // それ以外は「中間日」
+      else {
+        classNames.push('my-event-continue');
+      }
+    }
+    return {
+      className: classNames.join(' '),
+    };
+  };
+
   return (
     <Container maxWidth="lg" sx={{ py: 3 }}>
       <Typography variant="h4" component="h1" gutterBottom align="center" sx={{ fontSize: { xs: '1.8rem', sm: '2.125rem' } }}>
@@ -141,6 +160,7 @@ function App() {
           endAccessor="end"
           style={{ height: '100%' }}
           dayPropGetter={dayPropGetter}
+          eventPropGetter={eventPropGetter} // ★★★ ここで関数を渡す ★★★
           view={currentView}
           onView={(view) => setCurrentView(view)}
           date={currentDate}
