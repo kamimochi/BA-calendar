@@ -15,6 +15,8 @@ import {
   CardContent,
   CardHeader,
   Box,
+  Alert,
+  Chip,
   useTheme,
   useMediaQuery,
 } from '@mui/material';
@@ -22,8 +24,27 @@ import {
 import eventsData from "./data/events.json";
 
 // --- 型定義 ---
-type EventData = { id: number; title: string; start: string; end?: string; category: 'game' | 'goods' | 'event'; description?: string; url?: string; urlText?: string; };
-interface MyEvent { id: number; title: string; start: Date; end: Date; category: 'game' | 'goods' | 'event'; description?: string; url?: string; urlText?: string; }
+type EventData = { 
+  id: number; 
+  title: string; 
+  start: string; 
+  end?: string; 
+  category: 'game' | 'goods' | 'event'; 
+  description?: string; 
+  url?: string; 
+  urlText?: string; 
+};
+
+interface MyEvent { 
+  id: number; 
+  title: string; 
+  start: Date; 
+  end: Date; 
+  category: 'game' | 'goods' | 'event'; 
+  description?: string; 
+  url?: string; 
+  urlText?: string; 
+}
 
 // --- 初期データ設定 ---
 const myEvents: MyEvent[] = (eventsData as EventData[]).map((event) => {
@@ -33,7 +54,13 @@ const myEvents: MyEvent[] = (eventsData as EventData[]).map((event) => {
 });
 
 const locales = { 'ja': ja, };
-const localizer: DateLocalizer = dateFnsLocalizer({ format, parse, startOfWeek: (date: Date) => startOfWeek(date, { weekStartsOn: 0 }), getDay, locales });
+const localizer: DateLocalizer = dateFnsLocalizer({ 
+  format, 
+  parse, 
+  startOfWeek: (date: Date) => startOfWeek(date, { weekStartsOn: 0 }), 
+  getDay, 
+  locales 
+});
 
 // --- 日本語化対応 ---
 const messages = {
@@ -55,7 +82,7 @@ const formats: Formats = {
   agendaDateFormat: 'M月d日(E)',
   agendaHeaderFormat: ({ start, end }, culture, localizer) =>
     localizer!.format(start, 'M月d日(E)', culture) + ' - ' + localizer!.format(end, 'M月d日(E)', culture),
-  timeGutterFormat: 'ph:mm',
+  timeGutterFormat: 'HH:mm', // 修正: ph:mm -> HH:mm
 };
 
 const modalStyle = {
@@ -68,6 +95,20 @@ const modalStyle = {
   border: '2px solid #000',
   boxShadow: 24,
   p: { xs: 2, sm: 3, md: 4 },
+};
+
+// カテゴリー名の日本語マッピング
+const categoryLabels = {
+  game: 'ゲーム内イベント',
+  goods: 'グッズ情報',
+  event: 'リアルイベント'
+};
+
+// カテゴリー別の色設定
+const categoryColors = {
+  game: { bg: '#4caf50', color: 'white', label: 'success' },
+  goods: { bg: '#ff9800', color: 'white', label: 'warning' },
+  event: { bg: '#e91e63', color: 'white', label: 'error' }
 };
 
 function App() {
@@ -104,8 +145,16 @@ function App() {
     if (isSameDay(date, new Date())) {
       classNames.push('my-today');
     }
-    const isStartOrEnd = filteredEvents.some(event => !isSameDay(event.start, event.end) && (isSameDay(date, event.start) || isSameDay(date, event.end)));
-    const isContinue = filteredEvents.some(event => !isSameDay(event.start, event.end) && !isSameDay(date, event.start) && !isSameDay(date, event.end) && isWithinInterval(date, { start: startOfDay(event.start), end: endOfDay(event.end) }));
+    const isStartOrEnd = filteredEvents.some(event => 
+      !isSameDay(event.start, event.end) && 
+      (isSameDay(date, event.start) || isSameDay(date, event.end))
+    );
+    const isContinue = filteredEvents.some(event => 
+      !isSameDay(event.start, event.end) && 
+      !isSameDay(date, event.start) && 
+      !isSameDay(date, event.end) && 
+      isWithinInterval(date, { start: startOfDay(event.start), end: endOfDay(event.end) })
+    );
     if (isStartOrEnd) {
       classNames.push('is-start-or-end-day');
     } else if (isContinue) {
@@ -114,10 +163,12 @@ function App() {
     return { className: classNames.join(' ') };
   };
 
-  // ★★★ 手動でクラスを付与するロジック ★★★
+  // ★★★ 改善版eventPropGetter：data-category属性とより明確なクラス名付与 ★★★
   const eventPropGetter = (event: MyEvent, start: Date, end: Date, _isSelected: boolean) => {
     const classNames = [];
+    const style: React.CSSProperties = {};
     const isMultiDay = !isSameDay(event.start, event.end);
+    
     if (isMultiDay) {
       // このバーの断片が「イベント全体の開始日」と一致するか
       if (isSameDay(start, event.start)) {
@@ -132,10 +183,22 @@ function App() {
         classNames.push('my-event-continue');
       }
     }
+
+    // カテゴリー別のスタイル適用
+    const categoryColor = categoryColors[event.category];
+    style.backgroundColor = categoryColor.bg;
+    style.color = categoryColor.color;
+
     return {
       className: classNames.join(' '),
+      style,
+      'data-category': event.category, // data属性でカテゴリーを指定
     };
   };
+
+  // 週間・日間ビューでの制限通知を表示するかどうか
+  const showLimitation = (currentView === 'week' || currentView === 'day') && 
+    filteredEvents.some(event => !isSameDay(event.start, event.end));
 
   return (
     <Container maxWidth="lg" sx={{ py: 3 }}>
@@ -152,6 +215,16 @@ function App() {
         </ButtonGroup>
       </Box>
 
+      {/* 週間・日間ビューでの制限に関する通知 */}
+      {showLimitation && (
+        <Alert severity="info" sx={{ mb: 2 }}>
+          <Typography variant="body2">
+            ※ 週間・日間ビューでは、複数日にわたるイベントの表示に制限があります。
+            詳細な期間表示については月間ビューをご利用ください。
+          </Typography>
+        </Alert>
+      )}
+
       <Box sx={{ height: { xs: '70vh', md: '80vh' } }}>
         <Calendar
           localizer={localizer}
@@ -160,7 +233,7 @@ function App() {
           endAccessor="end"
           style={{ height: '100%' }}
           dayPropGetter={dayPropGetter}
-          eventPropGetter={eventPropGetter} // ★★★ ここで関数を渡す ★★★
+          eventPropGetter={eventPropGetter}
           view={currentView}
           onView={(view) => setCurrentView(view)}
           date={currentDate}
@@ -170,6 +243,7 @@ function App() {
           messages={messages}
           formats={formats}
           culture='ja'
+          popup={true} // ポップアップの有効化
         />
       </Box>
       
@@ -177,9 +251,21 @@ function App() {
         <Box sx={modalStyle}>
           {selectedEvent && (
             <Card>
-              <CardHeader title={selectedEvent.title} />
+              <CardHeader 
+                title={selectedEvent.title}
+                action={
+                  <Chip 
+                    label={categoryLabels[selectedEvent.category]}
+                    color={categoryColors[selectedEvent.category].label as any}
+                    size="small"
+                  />
+                }
+              />
               <CardContent>
-                <Typography component="div">
+                <Typography component="div" sx={{ mb: 2 }}>
+                  <strong>カテゴリー:</strong> {categoryLabels[selectedEvent.category]}
+                </Typography>
+                <Typography component="div" sx={{ mb: 2 }}>
                   <strong>期間:</strong> {format(selectedEvent.start, 'yyyy年M月d日(E) HH:mm', { locale: ja })}
                   {selectedEvent.start.getTime() !== selectedEvent.end.getTime() && 
                     (isSameDay(selectedEvent.start, selectedEvent.end)
@@ -187,8 +273,19 @@ function App() {
                       : ` - ${format(selectedEvent.end, 'yyyy年M月d日(E) HH:mm', { locale: ja })}`)
                   }
                 </Typography>
-                {selectedEvent.description && ( <Typography sx={{ mt: 2 }}> <strong>詳細:</strong> {selectedEvent.description} </Typography> )}
-                {selectedEvent.url && selectedEvent.urlText && ( <Typography sx={{ mt: 2 }}> <strong>リンク:</strong>{' '} <a href={selectedEvent.url} target="_blank" rel="noopener noreferrer"> {selectedEvent.urlText} </a> </Typography> )}
+                {selectedEvent.description && ( 
+                  <Typography sx={{ mb: 2 }}> 
+                    <strong>詳細:</strong> {selectedEvent.description} 
+                  </Typography> 
+                )}
+                {selectedEvent.url && selectedEvent.urlText && ( 
+                  <Typography sx={{ mt: 2 }}> 
+                    <strong>リンク:</strong>{' '} 
+                    <a href={selectedEvent.url} target="_blank" rel="noopener noreferrer"> 
+                      {selectedEvent.urlText} 
+                    </a> 
+                  </Typography> 
+                )}
               </CardContent>
             </Card>
           )}
