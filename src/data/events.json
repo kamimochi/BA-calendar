@@ -73,5 +73,14 @@
     "description": "新規書き下ろしイラストを使用した、ゲーム開発部の多彩なグッズが発売されます！\nかなり種類が豊富なのでぜひ公式サイトをご覧ください！",
     "url": "https://shop.yostar.co.jp/",
     "urlText": "公式サイト" 
+  },
+  {
+    "id": 9,
+    "title": "リスアニ！Vol.58 「ブルーアーカイブ -Blue Archive-」",
+    "start": "2025-06-24T00:00:00",
+    "category": "goods",
+    "description": "お値段は張りますが、数量限定でアクリルスタンド付きグッズがあります！",
+    "url": "https://www.animate-onlineshop.jp/products/detail.php?product_id=3118270&",
+    "urlText": "アニメイト公式サイト" 
   }
 ]
