@@ -145,13 +145,14 @@ button:not(.MuiButton-root):focus-visible {
   .rbc-day-bg.has-event:not(.rbc-off-range-bg) {
     background-color: rgba(18, 129, 232, 0.15);
   }
-
-  /* ダークモード時の「今日」の背景色 */
-  .rbc-day-bg.my-today {
-    background-color: rgba(234, 246, 255, 1);
+  
+  /* ダークモード時の「今日」の日付数字のスタイル */
+  .my-today .rbc-button-link {
+    background-color: #eaf6ff !important; /* 背景色を塗る */
+    color: white !important; /* 文字色を白に */
+    font-weight: bold;
   }
 }
-
   /* カレンダーツールバーの文字色 */
   .rbc-toolbar .rbc-toolbar-label,
   .rbc-toolbar button {
