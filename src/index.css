@@ -49,33 +49,25 @@ button:not(.MuiButton-root):hover {
   border-color: #646cff;
 }
 button:not(.MuiButton-root):focus,
-button:not(.MuiButton-root):focus-visible {
+button:not(.MuiButton-root):focus-visible
   outline: 4px auto -webkit-focus-ring-color;
 }
 
 
 /* --- ここからがアプリ独自のスタイル --- */
 
-/* ★★★★★★★★★★★★★★★★★★★★★★★★★★★★ */
-/* ★★★        今回の修正の核心部分        ★★★ */
-/* ★★★★★★★★★★★★★★★★★★★★★★★★★★★★ */
-
-/* すべての日付数字(リンク)の基本スタイル */
 .rbc-date-cell .rbc-button-link {
   width: 30px;
   height: 30px;
-  border-radius: 50%; /* 正円にする */
+  border-radius: 100px; /* 正円にする */
   display: inline-flex;
   justify-content: center;
   align-items: center;
   transition: background-color 0.2s, color 0.2s, border-color 0.2s;
-}
-
-/* 「今日」の日付のスタイル */
-.my-today .rbc-button-link {
-  background-color: #1281e8 !important; /* 背景色を塗る */
-  color: white !important; /* 文字色を白に */
-  font-weight: bold;
+  /* ★★★ ここに追記/修正 ★★★ */
+  **background-color: transparent !important; /* ボタンのデフォルト背景色を上書きし、透明にする */
+  border: 1px solid #bbb; /* 薄いグレーの枠線を追加し、丸の視認性を確保 */**
+  /* 日付の文字色は、:rootで設定した#213547（ダークグレー）が適切に継承されるはずです。 */
 }
 
 /* 日付が選択された時のスタイル */
