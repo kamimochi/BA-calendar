@@ -103,13 +103,30 @@ button:not(.MuiButton-root):focus-visible {
   background-color: #eaf6ff;
 }
 
-/* 長期間イベントの「間の日」の不透明度を下げる */
+/* ▼▼▼▼▼ このブロックを修正 ▼▼▼▼▼ */
+
+/* --- 複数日イベントのバーのスタイル --- */
+
+/* 開始日と終了日のバーは不透明度1（くっきり表示） */
+.rbc-event.rbc-event-start,
+.rbc-event.rbc-event-end {
+  opacity: 1;
+}
+
+/* 中間日のバーは不透明度0.6（少し薄く表示） */
 .rbc-event.rbc-event-continue {
   opacity: 0.6;
 }
+
+/* ホバー時はどの部分も不透明度1にする */
+.rbc-event.rbc-event-start:hover,
+.rbc-event.rbc-event-end:hover,
 .rbc-event.rbc-event-continue:hover {
   opacity: 1;
 }
+
+/* ▲▲▲▲▲ このブロックを修正 ▲▲▲▲▲ */
+
 
 /* 「他x件」リンクのスタイル */
 .rbc-show-more {
