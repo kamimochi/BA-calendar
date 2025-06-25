@@ -145,6 +145,12 @@ button:not(.MuiButton-root):focus-visible {
   .rbc-day-bg.has-event:not(.rbc-off-range-bg) {
     background-color: rgba(18, 129, 232, 0.15); 
   }
+@media (prefers-color-scheme: dark) {
+  /* ダークモード時の「今日」の背景色 */
+  .rbc-day-bg.my-today {
+    background-color: rgba(234, 246, 255, 1); 
+  }
+}
 
   /* カレンダーツールバーの文字色 */
   .rbc-toolbar .rbc-toolbar-label,
