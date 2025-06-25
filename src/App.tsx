@@ -101,7 +101,7 @@ const modalStyle = {
 const categoryLabels = {
   game: 'ゲーム内イベント',
   goods: 'グッズ情報',
-  event: 'リアルイベント'
+  event: 'イベント等'
 };
 
 // カテゴリー別の色設定
