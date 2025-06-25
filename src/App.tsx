@@ -115,7 +115,7 @@ function App() {
   };
 
   // ★★★ 手動でクラスを付与するロジック ★★★
-  const eventPropGetter = (event: MyEvent, start: Date, end: Date, isSelected: boolean) => {
+  const eventPropGetter = (event: MyEvent, start: Date, end: Date, _isSelected: boolean) => {
     const classNames = [];
     const isMultiDay = !isSameDay(event.start, event.end);
     if (isMultiDay) {
