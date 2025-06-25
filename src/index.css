@@ -53,20 +53,6 @@ button:not(.MuiButton-root):focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    /* ダークモード時のデフォルト色 */
-    --color-text-dark: rgba(255, 255, 255, 0.87);
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button:not(.MuiButton-root) {
-    background-color: #f9f9f9;
-  }
-}
 
 /* --- ここからがアプリ独自のスタイル --- */
 
