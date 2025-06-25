@@ -126,11 +126,8 @@ function App() {
     }
     return myEvents.filter(event => event.category === calendarType);
   }, [calendarType]);
+
   
-  // ★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
-  // ★★★ これがすべての元凶でした。本当に申し訳ありません。★★★
-  // ★★★ 引数の型を `MyEvent` に修正しました。 ★★★
-  // ★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
   const handleSelectEvent = (event: MyEvent) => {
     setSelectedEvent(event);
   };
@@ -205,7 +202,7 @@ function App() {
           <Button onClick={() => setCalendarType('all')} disabled={calendarType === 'all'}>すべて</Button>
           <Button onClick={() => setCalendarType('game')} disabled={calendarType === 'game'}>ゲーム内イベント</Button>
           <Button onClick={() => setCalendarType('goods')} disabled={calendarType === 'goods'}>グッズ情報</Button>
-          <Button onClick={() => setCalendarType('event')} disabled={calendarType === 'event'}>リアルイベント</Button>
+          <Button onClick={() => setCalendarType('event')} disabled={calendarType === 'event'}>イベント等</Button>
         </ButtonGroup>
       </Box>
 
