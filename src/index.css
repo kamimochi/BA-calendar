@@ -157,3 +157,23 @@ button:not(.MuiButton-root):focus-visible {
     font-size: 0.8rem;
   }
 }
+
+/* --- 複数日イベントのバーのスタイル --- */
+/* ★★★★★ 独自クラス名でスタイリング ★★★★★ */
+
+/* 開始日のバーは不透明度1（くっきり表示） */
+.rbc-event.my-event-start {
+  opacity: 1;
+}
+/* 終了日のバーも不透明度1 */
+.rbc-event.my-event-end {
+  opacity: 1;
+}
+/* 中間日のバーは不透明度0.6（少し薄く表示） */
+.rbc-event.my-event-continue {
+  opacity: 0.6;
+}
+/* ホバー時はどの部分も不透明度1にする */
+.rbc-event:hover {
+  opacity: 1;
+}
