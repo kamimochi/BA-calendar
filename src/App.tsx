@@ -26,10 +26,12 @@ type EventData = { id: number; title: string; start: string; end?: string; categ
 interface MyEvent { id: number; title: string; start: Date; end: Date; category: 'game' | 'goods' | 'event'; description?: string; url?: string; urlText?: string; }
 
 // --- 初期データ設定 ---
-const myEvents: MyEvent[] = (eventsData as EventData[]).map((event) => ({ ...event, start: new Date(event.start), end: new Date(event.end || event.start), category: event.category as 'game' | 'goods' | 'event' }));
-const locales = { 'ja': ja, };
-const localizer: DateLocalizer = dateFnsLocalizer({ format, parse, startOfWeek: (date: Date) => startOfWeek(date, { weekStartsOn: 0 }), getDay, locales });
-
+const myEvents: MyEvent[] = (eventsData as EventData[]).map((event) => {
+  const start = new Date(event.start);
+  // 終了日が指定されていればその日の終わりに、なければ開始日と同じにする
+  const end = event.end ? endOfDay(new Date(event.end)) : start;
+  return { ...event, start, end, category: event.category as 'game' | 'goods' | 'event' };
+});
 // --- 日本語化対応 ---
 const messages = {
   next: "次",
