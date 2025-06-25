@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { Calendar, type View, type DateLocalizer, type Formats } from 'react-big-calendar';
+// ★★★ endOfDay をインポートに追加 ★★★
 import { format, parse, startOfWeek, getDay, isSameDay, isWithinInterval, startOfDay, endOfDay } from 'date-fns';
 import { ja } from 'date-fns/locale';
 import { dateFnsLocalizer } from 'react-big-calendar';
@@ -26,12 +27,18 @@ type EventData = { id: number; title: string; start: string; end?: string; categ
 interface MyEvent { id: number; title: string; start: Date; end: Date; category: 'game' | 'goods' | 'event'; description?: string; url?: string; urlText?: string; }
 
 // --- 初期データ設定 ---
+// ★★★★★ 修正点：複数日イベントが正しく認識されるように、終了日を「その日の終わり」に設定 ★★★★★
 const myEvents: MyEvent[] = (eventsData as EventData[]).map((event) => {
   const start = new Date(event.start);
   // 終了日が指定されていればその日の終わりに、なければ開始日と同じにする
   const end = event.end ? endOfDay(new Date(event.end)) : start;
   return { ...event, start, end, category: event.category as 'game' | 'goods' | 'event' };
 });
+
+const locales = { 'ja': ja, };
+// ★★★★★ この行が抜けていたことがエラーの原因でした ★★★★★
+const localizer: DateLocalizer = dateFnsLocalizer({ format, parse, startOfWeek: (date: Date) => startOfWeek(date, { weekStartsOn: 0 }), getDay, locales });
+
 // --- 日本語化対応 ---
 const messages = {
   next: "次",
@@ -52,8 +59,6 @@ const formats: Formats = {
   agendaDateFormat: 'M月d日(E)',
   agendaHeaderFormat: ({ start, end }, culture, localizer) =>
     localizer!.format(start, 'M月d日(E)', culture) + ' - ' + localizer!.format(end, 'M月d日(E)', culture),
-  // ★★★★★ 修正点 ★★★★★
-  // 'p h:mm' から半角スペースを削除し、'ph:mm' に修正
   timeGutterFormat: 'ph:mm',
 };
 
