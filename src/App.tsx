@@ -85,6 +85,7 @@ const formats: Formats = {
   timeGutterFormat: 'HH:mm',
 };
 
+
 const modalStyle = {
   position: 'absolute' as const,
   top: '50%',
