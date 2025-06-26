@@ -56,20 +56,22 @@ button:not(.MuiButton-root):focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 
-@media (prefers-color-scheme: light) { /* [15] */
-  :root {
-    /* ダークモード時のデフォルト色 */
-    --color-text-dark: rgba(255, 255, 255, 0.87);
-    color: #213547;
-    background-color: #ffffff;
+@media (prefers-color-scheme: dark) {
+  /* 今日の日付 - より視認性の高い色に */
+  .my-today .rbc-button-link {
+    background-color: #2196f3 !important; /* より明るい青 */
+    color: white !important;
+    box-shadow: 0 0 8px rgba(33, 150, 243, 0.5); /* 光彩効果 */
   }
-
-  a:hover { /* [15] */
-    color: #747bff;
+  
+  /* リンク色の改善 */
+  .rbc-show-more {
+    color: #90caf9 !important; /* 明るいライトブルー */
   }
-
-  button:not(.MuiButton-root) { /* [15] */
-    background-color: #f9f9f9;
+  
+  /* イベントがある日の背景 */
+  .rbc-day-bg.has-event:not(.rbc-off-range-bg) {
+    background-color: rgba(33, 150, 243, 0.2);
   }
 }
 
@@ -79,15 +81,18 @@ button:not(.MuiButton-root):focus-visible {
 /* ★★★★★★★★★★★★★★★★★★★★★★★★★★★★ */
 
 /* すべての日付数字(リンク)の基本スタイル */
-.rbc-date-cell .rbc-button-link { /* [16] */
+.rbc-date-cell .rbc-button-link {
   width: 30px;
   height: 30px;
-  border-radius: 50%; /* 正円にする */
+  aspect-ratio: 1; /* 完璧な正円を保証 */
+  border-radius: 50%;
   display: inline-flex;
   justify-content: center;
-  align-items: center; /* [16] */
-  transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+  align-items: center;
+  min-width: 30px; /* 最小サイズを保証 */
+  min-height: 30px;
 }
+
 
 /* 「今日」の日付のスタイル */
 .my-today .rbc-button-link { /* [16] */
@@ -146,12 +151,74 @@ button:not(.MuiButton-root):focus-visible {
     color: rgba(255, 255, 255, 0.4) !important;
   }
 }
+/* 中間日のバーを確実に半透明化 */
+.rbc-month-view .rbc-event.my-event-continue {
+  opacity: 0.6 !important;
+}
+
+/* 開始日・終了日は確実に不透明 */
+.rbc-month-view .rbc-event.my-event-start,
+.rbc-month-view .rbc-event.my-event-end {
+  opacity: 1 !important;
+}
+/* イベントバーのホバー効果 */
+.rbc-event {
+  transition: all 0.2s ease-in-out;
+  border-radius: 4px;
+}
+
+.rbc-event:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  opacity: 1 !important;
+}
+
+/* 日付ボタンのホバー効果 */
+.rbc-date-cell .rbc-button-link {
+  transition: all 0.2s ease-in-out;
+}
+
+.rbc-date-cell .rbc-button-link:hover {
+  transform: scale(1.1);
+  background-color: rgba(33, 150, 243, 0.1);
+}
+/* ゲーム内イベント */
+.event-game {
+  background-color: #4caf50 !important;
+  border-left: 4px solid #2e7d32;
+}
+
+/* グッズ情報 */
+.event-goods {
+  background-color: #ff9800 !important;
+  border-left: 4px solid #f57c00;
+}
+
+/* リアルイベント */
+.event-event {
+  background-color: #e91e63 !important;
+  border-left: 4px solid #c2185b;
+}
+
 
 /* --- スマホ表示用のスタイル調整 --- */
-@media (max-width: 600px) { /* [18] */
+/* スマートフォン対応 */
+@media (max-width: 600px) {
   .rbc-date-cell .rbc-button-link {
-    width: 26px;
-    height: 26px;
+    width: 28px;
+    height: 28px;
+    min-width: 28px;
+    min-height: 28px;
     font-size: 0.8rem;
+  }
+}
+
+/* 大画面対応 */
+@media (min-width: 1200px) {
+  .rbc-date-cell .rbc-button-link {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    min-height: 36px;
   }
 }
