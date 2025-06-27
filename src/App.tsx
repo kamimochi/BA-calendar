@@ -141,43 +141,51 @@ function App() {
     setCurrentDate(date);
   };
 
-  // 今日の日付判定を簡潔化
   const dayPropGetter = (date: Date) => {
     const classNames = [];
     if (isSameDay(date, new Date())) {
       classNames.push('my-today');
     }
-    
-    // イベントがある日の背景色用
-    const hasEvents = filteredEvents.some(event => 
+    const isStartOrEnd = filteredEvents.some(event => 
+      !isSameDay(event.start, event.end) && 
+      (isSameDay(date, event.start) || isSameDay(date, event.end))
+    );
+    const isContinue = filteredEvents.some(event => 
+      !isSameDay(event.start, event.end) && 
+      !isSameDay(date, event.start) && 
+      !isSameDay(date, event.end) && 
       isWithinInterval(date, { start: startOfDay(event.start), end: endOfDay(event.end) })
     );
-    if (hasEvents) {
-      classNames.push('has-event');
+    if (isStartOrEnd) {
+      classNames.push('is-start-or-end-day');
+    } else if (isContinue) {
+      classNames.push('is-continue-day');
     }
-    
     return { className: classNames.join(' ') };
   };
   
-  // イベント表示プロパティの最適化
   const eventPropGetter = (event: MyEvent, start: Date, end: Date, _isSelected: boolean) => {
-    const classNames = [`event-${event.category}`]; // カテゴリー別クラス追加
+    const style: React.CSSProperties = {};
+    
+    const categoryColor = categoryColors[event.category];
+    style.backgroundColor = categoryColor.bg;
+    style.color = categoryColor.color;
     
     const isMultiDay = !isSameDay(event.start, event.end);
     if (isMultiDay) {
-      if (isSameDay(start, event.start)) {
-        classNames.push('my-event-start');
-      } else if (isSameDay(end, event.end)) {
-        classNames.push('my-event-end');
+      const isEventStart = isSameDay(start, event.start);
+      const isEventEnd = isSameDay(end, event.end);
+
+      if (!isEventStart && !isEventEnd) {
+        style.opacity = 0.6;
       } else {
-        classNames.push('my-event-continue');
+        style.opacity = 1.0;
       }
+    } else {
+      style.opacity = 1.0;
     }
-    
-    return {
-      className: classNames.join(' '),
-      'data-category': event.category // デバッグ用
-    };
+
+    return { style };
   };
 
   const showLimitation = (currentView === 'week' || currentView === 'day') && 
