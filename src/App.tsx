@@ -146,24 +146,19 @@ function App() {
     if (isSameDay(date, new Date())) {
       classNames.push('my-today');
     }
-    const isStartOrEnd = filteredEvents.some(event => 
-      !isSameDay(event.start, event.end) && 
-      (isSameDay(date, event.start) || isSameDay(date, event.end))
-    );
-    const isContinue = filteredEvents.some(event => 
-      !isSameDay(event.start, event.end) && 
-      !isSameDay(date, event.start) && 
-      !isSameDay(date, event.end) && 
+    
+    // イベントがある日の背景クラスを追加
+    const hasEvent = filteredEvents.some(event => 
       isWithinInterval(date, { start: startOfDay(event.start), end: endOfDay(event.end) })
     );
-    if (isStartOrEnd) {
-      classNames.push('is-start-or-end-day');
-    } else if (isContinue) {
-      classNames.push('is-continue-day');
+    if (hasEvent) {
+      classNames.push('has-event');
     }
+    
     return { className: classNames.join(' ') };
   };
   
+  // 修正されたeventPropGetter - より確実な日付比較を実装
   const eventPropGetter = (event: MyEvent, start: Date, end: Date, _isSelected: boolean) => {
     const style: React.CSSProperties = {};
     
@@ -171,17 +166,29 @@ function App() {
     style.backgroundColor = categoryColor.bg;
     style.color = categoryColor.color;
     
-    const isMultiDay = !isSameDay(event.start, event.end);
+    // 複数日イベントかどうかを判定
+    const isMultiDay = !isSameDay(startOfDay(event.start), startOfDay(event.end));
+    
     if (isMultiDay) {
-      const isEventStart = isSameDay(start, event.start);
-      const isEventEnd = isSameDay(end, event.end);
-
-      if (!isEventStart && !isEventEnd) {
-        style.opacity = 0.6;
-      } else {
+      // 各セグメントの開始日と終了日を正規化
+      const segmentStartDay = startOfDay(start);
+      const segmentEndDay = startOfDay(end);
+      const eventStartDay = startOfDay(event.start);
+      const eventEndDay = startOfDay(event.end);
+      
+      // 開始日または終了日かどうかを判定
+      const isEventStart = segmentStartDay.getTime() === eventStartDay.getTime();
+      const isEventEnd = segmentEndDay.getTime() === eventEndDay.getTime();
+      
+      if (isEventStart || isEventEnd) {
+        // 開始日・終了日は濃く表示
         style.opacity = 1.0;
+      } else {
+        // 中日は薄く表示
+        style.opacity = 0.4;
       }
     } else {
+      // 単日イベントは通常表示
       style.opacity = 1.0;
     }
 
