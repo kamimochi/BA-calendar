@@ -157,39 +157,23 @@ function App() {
     
     return { className: classNames.join(' ') };
   };
-  
-  // 修正されたeventPropGetter - より確実な日付比較を実装
-  const eventPropGetter = (event: MyEvent, start: Date, end: Date, _isSelected: boolean) => {
-    const style: React.CSSProperties = {};
-    
-    const categoryColor = categoryColors[event.category];
-    style.backgroundColor = categoryColor.bg;
-    style.color = categoryColor.color;
-    
-    // 複数日イベントかどうかを判定
-    const isMultiDay = !isSameDay(startOfDay(event.start), startOfDay(event.end));
-    
-    if (isMultiDay) {
-      // 各セグメントの開始日と終了日を正規化
-      const segmentStartDay = startOfDay(start);
-      const segmentEndDay = startOfDay(end);
-      const eventStartDay = startOfDay(event.start);
-      const eventEndDay = startOfDay(event.end);
-      
-      // 開始日または終了日かどうかを判定
-      const isEventStart = segmentStartDay.getTime() === eventStartDay.getTime();
-      const isEventEnd = segmentEndDay.getTime() === eventEndDay.getTime();
-      
-      if (isEventStart || isEventEnd) {
-        // 開始日・終了日は濃く表示
-        style.opacity = 1.0;
-      } else {
-        // 中日は薄く表示
-        style.opacity = 0.4;
-      }
-    } else {
-      // 単日イベントは通常表示
-      style.opacity = 1.0;
+  const eventPropGetter = (
+    event: MyEvent,
+    segmentStart: Date, // その日の 0:00
+    _segmentEnd: Date,
+  ) => {
+    const style: React.CSSProperties = {
+      backgroundColor: categoryColors[event.category].bg,
+      color: categoryColors[event.category].color,
+    };
+
+    const day = startOfDay(segmentStart);
+    const isFirst = isSameDay(day, startOfDay(event.start));
+    const isLast = isSameDay(day, startOfDay(event.end));
+
+    // 複数日イベントで開始日でも終了日でもない ⇒ 中日
+    if (!isFirst && !isLast && !isSameDay(event.start, event.end)) {
+      style.opacity = 0.4; // 半透明
     }
 
     return { style };
