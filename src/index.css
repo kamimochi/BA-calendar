@@ -57,11 +57,11 @@ button:not(.MuiButton-root):focus-visible {
 
 /* --- アプリ独自のスタイル --- */
 
-/* すべての日付数字(リンク)の基本スタイル - 統合版 */
+/* すべての日付数字(リンク)の基本スタイル - 完璧な円形版 */
 .rbc-date-cell .rbc-button-link {
   width: 30px;
   height: 30px;
-  aspect-ratio: 1;
+  aspect-ratio: 1; /* 完璧な正円を保証 */
   border-radius: 50%;
   display: inline-flex;
   justify-content: center;
@@ -106,14 +106,29 @@ button:not(.MuiButton-root):focus-visible {
   text-decoration: underline;
 }
 
-/* イベントバーの半透明化 */
+/* ★★★ イベントバーの半透明化 - 修正版 ★★★ */
+/* 中間日のバーを確実に半透明化 */
 .rbc-month-view .rbc-event.my-event-continue {
   opacity: 0.6 !important;
 }
 
+/* 開始日・終了日は確実に不透明 */
 .rbc-month-view .rbc-event.my-event-start,
 .rbc-month-view .rbc-event.my-event-end {
   opacity: 1 !important;
+}
+
+/* 開始日・終了日にアイコンマーカーを追加 */
+.rbc-month-view .rbc-event.my-event-start::before {
+  content: '▶';
+  margin-right: 4px;
+  font-size: 0.8em;
+}
+
+.rbc-month-view .rbc-event.my-event-end::after {
+  content: '◀';
+  margin-left: 4px;
+  font-size: 0.8em;
 }
 
 /* イベントバーのホバー効果 */
@@ -164,7 +179,7 @@ button:not(.MuiButton-root):focus-visible {
   }
 }
 
-/* --- ダークモード時のスタイル（統合版） --- */
+/* --- ダークモード時のスタイル（改善版） --- */
 @media (prefers-color-scheme: dark) {
   :root {
     color: rgba(255, 255, 255, 0.87);
